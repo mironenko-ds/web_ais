@@ -38,4 +38,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function role(){
+        return $this->belongsTo('App\UserRole');
+    }
+
+    public function getRole(){
+        return $this->role->role_name;
+    }
 }

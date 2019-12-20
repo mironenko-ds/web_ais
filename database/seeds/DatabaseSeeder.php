@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 
 class DatabaseSeeder extends Seeder
@@ -38,7 +39,7 @@ class DatabaseSeeder extends Seeder
 
         $admin = [
             [ 'role_id' => 3,
-                'password' => 'sasha123',
+                'password' => Hash::make('sasha123'),
                 'employee_id' => 10,
                 'email' => 'admin@admin.com' ]
         ];
