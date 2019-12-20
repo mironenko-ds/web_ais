@@ -23,10 +23,8 @@ Auth::routes(['register' => false]);
 
 Route::group(['middleware' => 'auth'], function () {
     // user pages
-    Route::group(['prefix' => 'user'], function () {
-        Route::get('/index', function(){
-            return view('user.index');
-        });
+    Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
+        Route::get('/index', 'UserController@index');
     });
 });
 
