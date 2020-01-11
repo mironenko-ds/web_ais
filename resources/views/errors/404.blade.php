@@ -15,11 +15,11 @@
    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700,900&display=swap&subset=cyrillic"
    rel="stylesheet">
 
-   <title>403</title>
+   <title>404</title>
  </head>
  <body>
     <div class="error">
-        <h1>403 | forbidden</h1>
+        <h1>404 | not found</h1>
     </div>
 </body>
 </html>

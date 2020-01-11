@@ -5,6 +5,13 @@ namespace App\Http\Controllers\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Post;
+use App\User;
+use App\AcademicDegree;
+use App\Departments;
+use App\Facultes;
+use App\Http\Requests\UserInsertRequest;
+use App\AccountCreationRequest;
 
 class UserController extends Controller
 {
@@ -32,12 +39,23 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Request\UserInsertRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UserInsertRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $validated['password_no_hash'] = str_random(14);
+        $userRequest = new AccountCreationRequest($validated);
+        $userRequest->save();
+
+        if(false){
+            return redirect()->route('new.user')->with(['success' => 'Заявка отправлена! После обработки заявки мы вам отправим письмо на почту с результатом.']);
+        }else{
+            return back()->with(['errorAdd' => 'Заявка не отправлена! Попробуйте указать другие данные'])->withInput();
+
+        }
+
     }
 
     /**
@@ -83,5 +101,36 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+    public function account(){
+
+        $user = Auth::user();
+
+        return view('user.account', compact('user'));
+    }
+
+    public function myWorks(){
+        return view('user.my-works');
+    }
+    public function addWork(){
+        return view('user.add-work');
+    }
+    public function feedback(){
+        return view('user.feedback');
+    }
+    public function work($id){
+       return view('user.work', compact('id'));
+    }
+
+    public function newUser(){
+
+        $posts = Post::all();
+        $degrees = AcademicDegree::all();
+        $departaments = Departments::all();
+        $facultes = Facultes::all();
+        $allDep = response()->json($departaments);
+        return view('user.new-user', compact('posts', 'degrees', 'allDep', 'facultes'));
     }
 }

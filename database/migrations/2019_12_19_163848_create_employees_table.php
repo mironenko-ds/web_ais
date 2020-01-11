@@ -16,7 +16,9 @@ class CreateEmployeesTable extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('sns', 255);
+            $table->string('name', 255);
+            $table->string('surname', 255);
+            $table->string('patronymic', 255);
             $table->unsignedBigInteger('post_id');
             $table->unsignedBigInteger('degree_id');
             $table->timestampsTz();

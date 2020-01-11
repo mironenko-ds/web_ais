@@ -15,11 +15,18 @@
    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700,900&display=swap&subset=cyrillic"
    rel="stylesheet">
 
-   <title>403</title>
+   <title> @yield('title') </title>
  </head>
- <body>
-    <div class="error">
-        <h1>403 | forbidden</h1>
-    </div>
+<body>
+    @include('user.layout.sidebar')
+    <main class="main">
+        @include('user.layout.header')
+        <div class="page">
+            @yield('content')
+        </div>
+    </main>
+    @hasSection('scriptUser')
+        @yield('scriptUser')
+    @endif
+    <script src="{{ asset('js/app.min.js') }}" defer></script>
 </body>
-</html>
