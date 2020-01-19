@@ -5,11 +5,11 @@ namespace App\Http\Controllers\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Post;
-use App\User;
-use App\AcademicDegree;
-use App\Departments;
-use App\Facultes;
+use App\Models\Post;
+use App\Models\User;
+use App\Models\AcademicDegree;
+use App\Models\Departments;
+use App\Models\Facultes;
 use App\Http\Requests\UserInsertRequest;
 use App\AccountCreationRequest;
 

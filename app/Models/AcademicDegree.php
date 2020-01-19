@@ -1,13 +1,14 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Post extends Model
+class AcademicDegree extends Model
 {
     public $timestamps = true;
+
     public function employee(){
-        return $this->hasOne('App\Employee');
+        return $this->hasOne('App\Models\Employee');
     }
 }
