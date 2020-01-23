@@ -49,7 +49,13 @@ class User extends Authenticatable
         return $this->belongsTo('App\Models\Employee');
     }
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @return string
+     */
     public function getRole(){
+
         return $this->role->role_name;
     }
 

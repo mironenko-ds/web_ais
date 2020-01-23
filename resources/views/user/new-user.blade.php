@@ -19,15 +19,15 @@
     <form action="/register" method="POST">
         @csrf
             <div class="group-text">
-            <input type="text" placeholder="Имя" name="name">
-            <input type="text" placeholder="Фамилия" name="surname">
-            <input type="text" placeholder="Отчество" name="patronymic">
-            <input type="text" placeholder="Почта" name="email">
+            <input type="text" required placeholder="Имя" name="name">
+            <input type="text" required placeholder="Фамилия" name="surname">
+            <input type="text" required placeholder="Отчество" name="patronymic">
+            <input type="email" required placeholder="Почта" name="email">
         </div>
             <div class="group-label">
                 <label for="faculty_id">Факультет</label>
             <select id="faculty_id" name="faculty">
-                @foreach ($facultes as $faculty)
+            @foreach ($facultes as $faculty)
                 <option value="{{ $faculty->id }}">{{ $faculty->faculty_name }}</option>
             @endforeach
             </select>
@@ -62,11 +62,6 @@
             </div>
         </form>
         <div class="new-user-error">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
         </div>
             @if (session('success'))
                 <div class="success">
@@ -78,6 +73,11 @@
                     {{ session()->get('errorAdd') }}
                 </div>
             @endif
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
     </div>
     <script defer>
         (

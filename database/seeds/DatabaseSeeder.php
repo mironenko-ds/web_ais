@@ -20,6 +20,10 @@ class DatabaseSeeder extends Seeder
         $facultes = require_once 'data-set/Facultes.php';
         $departaments = require_once 'data-set/Departaments.php';
 
+        $type_work = require_once 'data-set/TypeWork.php';
+        $works_kinds = require_once 'data-set/WorkKinds.php';
+        $works = require_once 'data-set/Works.php';
+
         //create admin
         $admin = [
             [ 'role_id' => 3,
@@ -36,8 +40,14 @@ class DatabaseSeeder extends Seeder
         DB::table('departments')->insert($departaments); // no delete
 
 
-        factory(\App\Employee::class, 10)->create();
-        factory(\App\User::class, 9)->create();
+        factory(\App\Models\Employee::class, 10)->create();
+        factory(\App\Models\User::class, 9)->create();
         DB::table('users')->insert($admin); // no delete
+
+        DB::table('type-works')->insert($type_work);
+        DB::table('works_kinds')->insert($works_kinds);
+        DB::table('works')->insert([$works[0]]);
+        //DB::table('works')->insert($works[1]);
+        //DB::table('works')->insert($works[2]);
     }
 }

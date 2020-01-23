@@ -16,8 +16,12 @@ class MakeWorksKinds extends Migration
         Schema::create('works_kinds', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('kind_name');
+            $table->unsignedBigInteger('type_work_id');
+
             $table->softDeletesTz();
             $table->timestampsTz();
+
+            $table->foreign('type_work_id')->references('id')->on('type-works');
         });
     }
 

@@ -31,8 +31,14 @@ Route::get('/register', function () {
 Route::post('/register', 'User\UserController@store');
 
 Route::get('/new-user', 'User\UserController@newUser')->name('new.user');
-
 // protected routes
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/uploads/{id}/feedback/{hash}/{filename}', function($id, $hash, $fileName){
+        return $hash . ' ' . $fileName;
+    });
+});
+
 
 Route::group(['middleware' => 'auth'], function () {
     // user pages
@@ -43,6 +49,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/add-work', 'UserController@addWork')->name('user.addWork');
         Route::get('/feedback', 'UserController@feedback')->name('user.feedback');
         Route::get('/work/{id}', 'UserController@work')->name('user.work');
+        Route::post('/reset-email', 'UserController@resetEmail')->name('user.resetEmail');
+        Route::post('/reset-password', 'UserController@resetPassword')->name('user.resetPass');
+        Route::post('/send-message', 'UserController@sendMessage')->name('user.sendMessange');
+        Route::post('/message', 'UserController@sendMessageUser')->name('user.sendMessageUser');
+        Route::post('/create-work', 'UserController@CreateWork')->name('user.CreateWork');
     });
 
     // moder pages

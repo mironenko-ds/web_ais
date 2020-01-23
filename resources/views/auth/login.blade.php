@@ -20,23 +20,14 @@
       <form method="POST" action="{{ route('login') }}" class="body">
         @csrf
           <input class="form-control" type="login" name="email" laceholder="Логин" required="required">
-            @error('email')
-                  <span class="invalid-feedback" style="display: block;" role="alert">
-                      <strong>{{ $message }}</strong>
-                  </span>
-            @enderror
-
           <input class="form-control" type="password" name="password" placeholder="Пароль" required="required">
-            @error('password')
-            <span class="invalid-feedback" style="display: block;" role="alert">
-                <strong>{{ $message }}</strong>
-            </span>
-            @enderror
-
           <label>
               <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
               Запомнить пароль
           </label>
+            @foreach ($errors->all() as $error)
+                <strong>{{ $error }}</strong>
+            @endforeach
           <input type="submit" value="Войти">
       </form>
       @if (Route::has('password.request'))

@@ -16,10 +16,10 @@ class Works extends Migration
         Schema::create('works', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('number_indicator');
-            $table->string('indicator');
-            $table->string('norm_desc');
+            $table->text('indicator');
+            $table->text('norm_desc');
             $table->string('norm');
-            $table->string('description');
+            $table->text('description')->nullable();
             $table->unsignedBigInteger('works_kinds_id');
 
             $table->softDeletesTz();

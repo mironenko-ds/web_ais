@@ -15,11 +15,19 @@ class Feedback extends Migration
     {
         Schema::create('feedback', function (Blueprint $table) {
             $table->bigIncrements('id');
-            
+            $table->unsignedBigInteger('user_id');
+            $table->string('title');
+            $table->text('content');
+            $table->unsignedBigInteger('type_user');
+            $table->json('materials')->nullable();
+            $table->string('status')->default('0');
+
             $table->softDeletesTz();
             $table->timestampsTz();
 
-            $table->foreign('works_kinds_id')->references('id')->on('works_kinds');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('type_user')->references('id')->on('user_roles');
+
         });
     }
 
@@ -30,6 +38,6 @@ class Feedback extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('works_kinds');
+        Schema::dropIfExists('feedback');
     }
 }
