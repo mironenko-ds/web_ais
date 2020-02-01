@@ -18,7 +18,7 @@ class CreateFacultesTable extends Migration
             $table->string('faculty_name');
             $table->string('head_faculty');
             $table->softDeletesTz();
-            $table->timestamps();
+            $table->timestampsTz();
         });
     }
 

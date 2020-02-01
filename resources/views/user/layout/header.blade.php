@@ -13,8 +13,19 @@
     </div>
     <div class="head-items">
         <div class="head__message">
-            <div class="message-title"><span>12...</span></div>
-            <a href="#">
+            @php
+                $count = App\Models\FeedbackAnser::where(
+                    [['asked_user', '=', Auth::user()->id],
+                     ['asked_user_read', '=', false]]
+                    )->count();
+            @endphp
+            @if ( $count == 0 )
+            @elseif($count <= 9)
+                <div class="message-title"><span>{{ $count }}</span></div>
+            @elseif($count >= 9)
+                <div class="message-title"><span>9+</span></div>
+            @endif
+            <a href="{{ route('user.message') }}">
                 <img src="{{ asset('img/message.png') }}" alt="">
             </a>
         </div>

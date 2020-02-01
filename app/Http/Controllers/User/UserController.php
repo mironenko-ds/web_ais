@@ -23,7 +23,9 @@ use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\DeleteAccountRequest;
 use App\Http\Requests\SendMessageUserRequest;
 use App\Http\Requests\NewWorkRequest;
-
+use App\Http\Requests\ValidChangeRequestWork;
+use App\Models\FeedbackAnser;
+use App\Models\PlanWork;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +34,9 @@ use Illuminate\Support\Facades\File;
 
 use App\Services\AddFileService;
 use App\Services\MakeWorkService;
+use App\Services\SendUserMessage;
+use App\Services\UserInfoService;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
@@ -103,24 +108,45 @@ class UserController extends Controller
 
     public function account(){
 
-        $user = Auth::user();
+        $info = UserInfoService::info();
 
-        $userName = $user->employee->name;
-        $surName = $user->employee->surname;
-        $patronymic = $user->employee->patronymic;
-        $email = $user->email;
-        $facultyName = $user->employee->departament->faculty->faculty_name;
-        $departamentName =  $user->employee->departament->departament_name;
-        $degreeName = $user->employee->degree->degree_name;
-        $userPost = $user->employee->post->post_name;
-
-        return view('user.account', compact('userName', 'surName', 'patronymic', 'email',
-                            'facultyName', 'departamentName', 'degreeName', 'userPost'));
+        return view('user.account', $info);
     }
 
     public function myWorks(){
-        return view('user.my-works');
+
+        $user_id = Auth::user()->employee->id;
+
+        $works = PlanWork::where([
+            ['employee_id', '=', $user_id],
+            ['status', '=', 1]
+        ])->paginate(15);
+
+        if($works->count() == 0){ // записи отсутствуют
+            return view('user.my-works', ['noWorks' => 'Работы отсутсвуют']);
+        }else{
+            return view('user.my-works', compact('works'));
+        }
     }
+
+    public function EditWork(ValidChangeRequestWork $request)
+    {
+        $valid = $request->validated();
+
+        $sendMessage = SendUserMessage::send(
+            $valid['tema'], $valid['content'], Auth::user()->id
+        );
+
+        try {
+            $sendMessage->save();
+        } catch (\Throwable $th) {
+            return back()->with(['errorSendMessage' => $th->getMessage()]);
+        }
+
+        return redirect()->route('user.works')->with(['successSend' => 'Ваше сообщение отправлено']);
+
+    }
+
     public function addWork(){
         $user = Auth::user();
         $employee = $user->employee->name . ' ' . $user->employee->surname . ' ' . $user->employee->patronymic;
@@ -153,40 +179,12 @@ class UserController extends Controller
         $message->user_id = Auth::user()->id;
         $message->content = $validated['content'];
         $message->type_user = $validated['type-user'];
-
-        // files
-        $folder_hash = md5($tema . Carbon::now('Europe/Kiev')->toDateTimeString());
+        $message->departament_id = Auth::user()->employee->department_id;
 
         if($request->file('attachment')){
-            // json объект
-            $jsonObj = array();
-            $directory = 'app/uploads/' . Auth::user()->id . '/feedback';
-            // добавление файлов если папка создана
-            if(Storage::disk('public')->exists($directory)){
-                // создание уникальной папки
-                $unic_folder = $directory . '/' . $folder_hash;
-                Storage::disk('public')->makeDirectory($unic_folder);
-                // загрузка в эту папку
-                foreach($request->file('attachment') as $file){
-                    $fName = $file->getClientOriginalName();
-                    $value = $file->storeAs($unic_folder, $fName, 'public');
-                    array_push($jsonObj, $value);
-                }
-                // добавление файлов если папка не создана
-            }else{
-                // создание папки и загрузка
-                Storage::disk('public')->makeDirectory($directory);
-                // создание уникальной папки
-                $unic_folder = $directory . '/' . $folder_hash;
-                Storage::disk('public')->makeDirectory($unic_folder);
-                // загрузка в эту папку
-                foreach($request->file('attachment') as $file){
-                    $fName = $file->getClientOriginalName();
-                    $value = $file->storeAs($unic_folder, $fName, 'public');
-                    array_push($jsonObj, $value);
-                }
-            }
-            $message->materials = json_encode($jsonObj);
+            $files = new AddFileService($request->file('attachment'));
+            $json = $files->sendFileToFolder('feedback');
+            $message->materials = json_encode($json);
         }
         $message->save();
         return redirect()->route('user.feedback')->with(['successFeedback' => 'Ваше сообщение отправлено.']);
@@ -215,17 +213,22 @@ class UserController extends Controller
         $value = User::where('id', $userId)->update(['email'=> $validated['new-email']]);
 
         if($value){
-            return redirect()->route('user.account')->with(['successEmail' => 'Почта обновлена.']);
+            if(Auth::user()->role->role_name == 'moderator'){
+                return redirect()->route('moderator.account')->with(['successEmail' => 'Пошта оновлена.']);
+            }elseif(Auth::user()->role->role_name == 'user'){
+                return redirect()->route('user.account')->with(['successEmail' => 'Пошта оновлена.']);
+            }elseif(Auth::user()->role->role_name == 'admin'){
+                return redirect()->route('admin.account')->with(['successEmail' => 'Пошта оновлена.']);
+            }
         }else{
-            return back()->with(['errorReset' => 'Почта не обновлена! Попробуйте еще раз'])->withInput();
-
+            return back()->with(['errorReset' => 'Пошта не оновлена! Спробуйте ще раз'])->withInput();
         }
     }
 
     public function resetPassword(ResetPasswordRequest $request){
         $validated = $request->validated();
         if(!Hash::check($validated['old-password'], Auth::user()->password)){
-            return back()->with(['errorPass' => 'Введенный вами пароль не совпадает с старым паролем!']);
+            return back()->with(['errorPass' => 'Введений вами пароль не збігається з старим паролем!']);
         }
 
         $userId = Auth::user()->id;
@@ -233,9 +236,15 @@ class UserController extends Controller
         $value = User::where('id', $userId)->update(['password'=> $passHash]);
 
         if($value){
-            return redirect()->route('user.account')->with(['successPass' => 'Пароль обновлен!']);
+            if(Auth::user()->role->role_name == 'moderator'){
+                return redirect()->route('moderator.account')->with(['successPass' => 'Пароль оновлено!']);
+            }elseif(Auth::user()->role->role_name == 'user'){
+                return redirect()->route('user.account')->with(['successPass' => 'Пароль оновлено!']);
+            }elseif(Auth::user()->role->role_name == 'admin'){
+                return redirect()->route('admin.account')->with(['successPass' => 'Пароль оновлено!']);
+            }
         }else{
-            return back()->with(['errorPass' => 'Пароль не обновлен! Попробуйте еще раз']);
+            return back()->with(['errorPass' => 'Пароль не оновлено! Спробуйте ще раз']);
 
         }
     }
@@ -243,7 +252,7 @@ class UserController extends Controller
      function sendMessage(DeleteAccountRequest $request)
     {
         $validated = $request->validated();
-        $title = 'Удаление аккаунта';
+        $title = 'Видалення акаунта';
 
         $deletePost = new Feedback;
 
@@ -251,7 +260,7 @@ class UserController extends Controller
         $deletePost->title = $title;
         $deletePost->content = $validated['content-message'];
         $deletePost->type_user = 2;
-
+        $deletePost->departament_id = Auth::user()->employee->department_id;
         $deletePost->save();
 
         return redirect()->route('user.account')->with(['successSend' => 'Сообщение отправлено!']);
@@ -279,5 +288,69 @@ class UserController extends Controller
 
 
         return redirect()->route('user.addWork')->with(['successWork' => 'Работа добавлена! В течении нескольких дней модератор обработает вашу работу.']);
+    }
+    public function MyMessage(){
+
+        $user_id = Auth::user()->id;
+
+        $answers = FeedbackAnser::orderBy('id', 'desc')->where('asked_user', '=', $user_id)->paginate(15);
+
+        if($answers->count() == 0){ // записи отсутствуют
+            return view('user.my-message', ['noMessage' => 'Сообщения отсутсвуют']);
+        }else{
+            $count_no_read = FeedbackAnser::where([['asked_user_read', '=', false],['asked_user', '=', $user_id]])->count();
+
+            return view('user.my-message', compact('answers', 'count_no_read'));
+        }
+    }
+
+    public function deleteAllMessage(Request $request){
+
+        $user_id = Auth::user()->id;
+
+        try {
+            FeedbackAnser::where('asked_user', '=', $user_id)->delete();
+        } catch (\Throwable $th) {
+            return back()->with(['errorDeleteAll' => $th->getMessage()]);
+        }
+        if(Auth::user()->role->role_name == 'user'){
+            return redirect()->route('user.message')->with(['successDeleteAll' => 'Повідомлення видалені!']);
+        }elseif(Auth::user()->role->role_name == 'moderator'){
+            return redirect()->route('moderator.myMessage')->with(['successDeleteAll' => 'Повідомлення видалені!']);
+        }
+    }
+
+    public function changeStatusMessage(Request $request, $id){
+
+        $user_id = Auth::user()->id;
+
+        if(FeedbackAnser::where([
+            ['asked_user', '=', $user_id],
+            ['id', '=', $id ]
+        ])->count() != 0){
+            FeedbackAnser::where('id', '=', $id)->update(['asked_user_read' => true]);
+        }
+    }
+
+    public function deleteMessage(Request $request, $id){
+        $user_id = Auth::user()->id;
+
+        if(FeedbackAnser::where([
+            ['asked_user', '=', $user_id],
+            ['id', '=', $id ]
+        ])->count() != 0){
+            FeedbackAnser::where('id', '=', $id)->delete();
+            if(Auth::user()->role->role_name == 'user'){
+                return redirect()->route('user.message');
+            }elseif(Auth::user()->role->role_name == 'moderator'){
+                return redirect()->route('moderator.myMessage');
+            }
+        }else{
+            if(Auth::user()->role->role_name == 'user'){
+                return redirect()->route('user.message');
+            }elseif(Auth::user()->role->role_name == 'moderator'){
+                return redirect()->route('moderator.myMessage');
+            }
+        }
     }
 }

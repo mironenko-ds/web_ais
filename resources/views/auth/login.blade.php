@@ -19,7 +19,7 @@
       </div>
       <form method="POST" action="{{ route('login') }}" class="body">
         @csrf
-          <input class="form-control" type="login" name="email" laceholder="Логин" required="required">
+          <input class="form-control" type="login" name="email" placeholder="Логин" required="required">
           <input class="form-control" type="password" name="password" placeholder="Пароль" required="required">
           <label>
               <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>

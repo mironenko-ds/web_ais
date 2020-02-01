@@ -15,7 +15,7 @@ class MakeUserReferens extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->foreign('role_id')->references('id')->on('user_roles');
-            $table->foreign('employee_id')->references('id')->on('employees');
+            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
         });
     }
 

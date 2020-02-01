@@ -20,7 +20,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'role_id', 'employee_id'
     ];
 
     /**
@@ -45,8 +45,20 @@ class User extends Authenticatable
         return $this->belongsTo('App\Models\UserRole');
     }
 
+    public function feedback(){
+        return $this->hasOne('App\Models\Feedback');
+    }
+
+    public function feedbackAnswer(){
+        return $this->hasOne('App\Models\FeedbackAnswer');
+    }
+
     public function employee(){
         return $this->belongsTo('App\Models\Employee');
+    }
+
+    public function deleteUser(){
+
     }
 
     /**
@@ -65,10 +77,10 @@ class User extends Authenticatable
 
         switch ($role) {
             case 'admin':
-                return '/admin/new-user';
+                return '/admin/index';
                 break;
             case 'moderator':
-                return '/moderator/page';
+                return '/moderator/index';
                 break;
             case 'user':
                 return '/user/index';

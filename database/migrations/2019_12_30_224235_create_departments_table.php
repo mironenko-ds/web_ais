@@ -19,7 +19,7 @@ class CreateDepartmentsTable extends Migration
             $table->unsignedBigInteger('faculty_id');
             $table->string('head_departament');
             $table->softDeletesTz();
-            $table->timestamps();
+            $table->timestampsTz();
 
             $table->foreign('faculty_id')->references('id')->on('facultes');
         });

@@ -22,6 +22,7 @@ class CreateEmployeesTable extends Migration
             $table->unsignedBigInteger('post_id');
             $table->unsignedBigInteger('degree_id');
             $table->timestampsTz();
+            $table->softDeletesTz();
 
             $table->foreign('post_id')->references('id')->on('posts');
             $table->foreign('degree_id')->references('id')->on('academic_degrees');

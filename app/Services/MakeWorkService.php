@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class MakeWorkService{
 
-    public static function make($valid){
+    public static function make($valid, $st = false){
 
         $work = new PlanWork;
 
@@ -26,7 +26,7 @@ class MakeWorkService{
         $work->norm_semester_2_fact = $valid['norma-2-fact'];
         $work->count_fact = $valid['count-fact'];
         $work->percentage_fact = $valid['share-fact'];
-        $work->status = false;
+        $work->status = $st;
 
         return $work;
 

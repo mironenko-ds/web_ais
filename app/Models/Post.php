@@ -11,4 +11,8 @@ class Post extends Model
     public function employee(){
         return $this->hasOne('App\Models\Employee');
     }
+
+    public function account_creation_request(){
+        return $this->hasOne('App\Models\AccountCreationRequest');
+    }
 }

@@ -20,11 +20,15 @@ class AddFileService{
      * @param string $folder
      * @return json
      */
-    public function sendFileToFolder($folder){
+    public function sendFileToFolder($folder, $user_id = false){
+
+        if(!$user_id){
+            $user_id = Auth::user()->id;
+        }
 
         $JsonPath = array(); // array->json
         // папки где будут хранится другие папки -> feedback, works ...
-        $directory = 'app/uploads/' . Auth::user()->id . '/' . $folder;
+        $directory = 'app/uploads/' . $user_id . '/' . $folder;
         // генерация уникального имени папки
         $unic_folder = md5(Auth::user()->id . Carbon::now('Europe/Kiev')->toDateTimeString());
         // уникальная папка для текущих файлов
@@ -36,7 +40,7 @@ class AddFileService{
             foreach($this->files as $file){
                 $fileName = $file->getClientOriginalName();
                 $path = $file->storeAs($folder_material, $fileName, 'public');
-                array_push($JsonPath, $path);
+                array_push($JsonPath, ['title' => $file->getClientOriginalName(), 'link' => $path]);
             }
         }else{ // папка не создана и мы ща создадим
             Storage::disk('public')->makeDirectory($directory);
@@ -44,7 +48,7 @@ class AddFileService{
             foreach($this->files as $file){
                 $fileName = $file->getClientOriginalName();
                 $path = $file->storeAs($folder_material, $fileName, 'public');
-                array_push($JsonPath, $path);
+                array_push($JsonPath, ['title' => $file->getClientOriginalName(), 'link' => $path]);
             }
         }
         return $JsonPath;

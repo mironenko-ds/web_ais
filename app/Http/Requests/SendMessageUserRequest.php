@@ -19,12 +19,12 @@ class SendMessageUserRequest extends FormRequest
     public function messages()
     {
         return [
-                'tema.required' => 'Вы не указали тему!',
-                'tema.min' => 'Название темы должно быть больше 6 символов',
-                'tema.max' => 'Название темы должно быть не больше 255 символов',
-                'type-user.required' => 'Вы не указали пользователя',
-                'type-user.exists' => 'Такого типа пользователя не существует',
-                'content.required' => 'Вы не указали сообщение'
+                'tema.required' => 'Ви не вказали тему!',
+                'tema.min' => 'Назва теми має бути більше 6 символів',
+                'tema.max' => 'Назва теми має бути не більше 255 символів',
+                'type-user.required' => 'Ви не вказали одержувача',
+                'type-user.exists' => 'Такого одержувача не існує',
+                'content.required' => 'Ви не вказали повідомлення'
         ];
     }
 

@@ -19,10 +19,10 @@ class AddUserBuffer extends Migration
             $table->string('surname');
             $table->string('patronymic');
             $table->string('email');
-            $table->integer('faculty');
-            $table->integer('departament');
-            $table->integer('degree');
-            $table->integer('post');
+            $table->unsignedBigInteger('faculty');
+            $table->unsignedBigInteger('departament');
+            $table->unsignedBigInteger('degree');
+            $table->unsignedBigInteger('post');
             $table->string('password_no_hash');
             $table->timestampsTz();
         });
