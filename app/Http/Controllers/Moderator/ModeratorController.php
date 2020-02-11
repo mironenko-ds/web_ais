@@ -31,6 +31,11 @@ use Illuminate\Support\Facades\Mail;
 use App\Services\IdDepartament;
 use App\Services\GetInfoUniversity;
 use App\Repositories\EmployeeRepository;
+use App\Services\GetSortEmployee;
+use App\Services\GetSortUserRequest;
+use App\Services\ModeratorSortMessage;
+use App\Services\SortUserQuestion;
+use App\Services\SortUserRequestWork;
 
 class ModeratorController extends Controller
 {
@@ -54,17 +59,32 @@ class ModeratorController extends Controller
         return view('moderator.account', $info);
     }
 
-    public function employees(){
-
+    public function employees(Request $request){
+        $result = array(); $get_req = '';
         $dep_id = IdDepartament::get();
+        $users = ''; $get_req = array();
+
+        $val = GetSortEmployee::sort($request, $dep_id);
 
         $users = $this->employeeRepository
             ->getByDepartament($dep_id, true)
             ->paginate(15);
 
+        if($request->input('value') && $request->input('type-sort')){
+            $val = GetSortEmployee::sort($request, $dep_id);
+            $users = $val['value']; $get_req = $val['get'];
+        }else{
+            $users = $this->employeeRepository
+            ->getByDepartament($dep_id, true)
+            ->paginate(15);
+        }
+
+
+
+
         if($users->count()){
             $university = GetInfoUniversity::get();
-            return view('moderator.employee', compact('users', 'university'));
+            return view('moderator.employee', compact('users', 'university', 'get_req'));
         }else{
             $UsersEmpty = 'Користувачі відсутні';
             return view('moderator.employee', compact('UsersEmpty'));
@@ -127,15 +147,24 @@ class ModeratorController extends Controller
         // отправка сообщения пользователю чтобы он доработал работу
     }
 
-    public function addUser(){
+    public function addUser(Request $req){
 
         $user_dep = IdDepartament::get();
+        $req_user = ""; // empty
+        $get_req = array(); // empty
 
-        $req_user = AccountCreationRequest::where('departament', '=', $user_dep)->paginate(15);
+        if($req->input('value') && $req->input('type-sort')){
+            $val = GetSortUserRequest::sort($req, $user_dep);
+            $req_user = $val['value']; $get_req = $val['get'];
+        }else{
+            $req_user = AccountCreationRequest::where('departament', '=', $user_dep)
+            ->with('deg', 'pos')
+            ->paginate(15);
+        }
         if($req_user->count() == 0){
             return view('moderator.add-user', ['request' => 'Запити відсутні']);
         }else{
-            return view('moderator.add-user', compact('req_user'));
+            return view('moderator.add-user', compact('req_user', 'get_req'));
         }
 
         return view('moderator.add-user');
@@ -215,34 +244,50 @@ class ModeratorController extends Controller
 
     }
 
-    public function myMessage(){
+    public function myMessage(Request $request){
         $user_id = Auth::user()->id;
-        $answers = FeedbackAnser::orderBy('id', 'desc')->where('asked_user', '=', $user_id)->paginate(15);
+        $answers = ''; $get_req = array();
+        if($request->input('value') && $request->input('type-sort')){
+            $val = ModeratorSortMessage::sort($request, $user_id);
+            $answers = $val['value']; $get_req = $val['get'];
+        }else{
+            $answers = FeedbackAnser::where('asked_user', '=', $user_id)
+                ->with('user_answered', 'feedback')
+                ->paginate(15);
+        }
 
         if($answers->count() == 0){ // записи отсутствуют
             return view('moderator.my-message', ['noMessage' => 'Немає дописів']);
         }else{
             $count_no_read = FeedbackAnser::where([['asked_user_read', '=', false],['asked_user', '=', $user_id]])->count();
 
-            return view('moderator.my-message', compact('answers', 'count_no_read'));
+            return view('moderator.my-message', compact('answers', 'count_no_read', 'get_req'));
         }
 
     }
 
-    public function usersQuestion(){
+    public function usersQuestion(Request $req){
         $user_dep = Auth::user()->employee->departament->id;
         $user_id = Auth::user()->id;
+        $questions = ''; $get_req = array();
+        if($req->input('value') && $req->input('type-sort')){
+            $val = SortUserQuestion::sort($req, $user_id, $user_dep);
+            $questions =$val['value']; $get_req = $val['get'];
+        }else{
+            $questions = Feedback::where([
+                ['user_id', '<>', $user_id],
+                ['type_user', '=', 2],
+                ['departament_id', '=', $user_dep],
+                ['status', '=', false]
+            ])
+            ->with('user')
+            ->paginate(7);
+        }
 
-        $questions = Feedback::where([
-            ['user_id', '<>', $user_id],
-            ['type_user', '=', 2],
-            ['departament_id', '=', $user_dep],
-            ['status', '=', false]
-        ])->paginate(7);
         if($questions->count() == 0){
             return view('moderator.users-question', ['noQuestion' => 'Питань немає']);
         }else{
-            return view('moderator.users-question', compact('questions'));
+            return view('moderator.users-question', compact('questions', 'get_req'));
         }
 
     }
@@ -268,16 +313,23 @@ class ModeratorController extends Controller
         return redirect()->route('moderator.usersQuestion');
     }
 
-    public function works(){
+    public function works(Request $request){
 
         $dep_id = Auth::user()->employee->departament->id;
-
-        $works = PlanWork::where('departament_id', '=', $dep_id)->with('work')->paginate(15);
+        $works = ""; $get_req = array();
+        if($request->input('value') && $request->input('type-sort')){
+            $val = SortUserRequestWork::sort($request, $dep_id);
+            $works = $val['value']; $get_req = $val['get'];
+        }else{
+            $works = PlanWork::where('departament_id', '=', $dep_id)
+                ->with('work')
+                ->paginate(15);
+        }
 
         if($works->count() == 0){ // записи отсутствуют
             return view('moderator.my-works', ['noWorks' => 'Публікації відсутні']);
         }else{
-            return view('moderator.my-works', compact('works'));
+            return view('moderator.my-works', compact('works', 'get_req'));
         }
     }
 

@@ -14,11 +14,13 @@
     @endif
 
     @if ($errors->any())
-        <ul>
+    <div class="wrapped-new-user-error">
+        <ul class="show-errors-server">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
+    </div>
     @endif
 
     <form action="{{ route('moderator.feedbackSend') }}" method="POST" enctype="multipart/form-data">
@@ -37,8 +39,11 @@
         </div>
         <textarea class="text-input" name="content" required></textarea>
         <div class="form-buttom-group">
-            <input type="file" name="attachment[]" multiple/>
-            <button type="submit" class="btn-submit-input">Відправити</button>
+            <div class="add-files">
+                <p>Додаткові матеріали</p>
+                <input type="file" name="attachment[]" multiple/>
+            </div>
+                <button type="submit" class="btn-submit-input">Відправити</button>
         </div>
     </form>
 </div>

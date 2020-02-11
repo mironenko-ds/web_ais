@@ -1,58 +1,118 @@
 @extends('user.layout.template')
-@section('title', 'Мои работы')
+@section('title', 'Мої роботи')
 @section('content')
 <div class="page__title">
-    <a href="{{ route('user.index') }}">Главная</a>
+    <a href="{{ route('user.index') }}">Головна</a>
     <img src="{{ asset('img/next.png') }}" alt="next">
-    <a href="{{ route('user.works') }}">Мои работы</a>
+    <a href="{{ route('user.works') }}">Мої роботи</a>
 </div>
-<div class="user-works block">
-    @if ($errors->any())
-    <ul>
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-    @endif
-
-    @if (session('errorSendMessage'))
-        <div class="">
-            {{ session()->get('errorSendMessage') }}
-        </div>
-    @endif
-    @if (session('successSend'))
-        <div class="">
-            {{ session()->get('successSend') }}
-        </div>
-    @endif
-
-
-
+<div class="user-works block-no-padding">
     @if (isset($noWorks))
-        <h1>{{ $noWorks }}</h1>
+        <h1 style="text-align: center;padding: 20px 0;">{{ $noWorks }}</h1>
     @else
-        <table class="main-table">
+        <div class="header">
+            <div class="header-item">
+                <p>Кількість робіт на сторінці: {{$works->count()}}</p>
+            </div>
+            <div class="header-item">
+                <form action="" method="get">
+                    <label for="sort">
+                        <p>Сортування</p>
+                        @if (!empty($get_req))
+                            <select name="value" id="sort">
+                                <option value="1"
+                                {{$get_req['val'] == 1 ? 'selected' : null }}
+                                >навчальний рік</option>
+                                <option value="2"
+                                {{$get_req['val'] == 2 ? 'selected' : null }}
+                                >дата запису плану</option>
+                                <option value="3"
+                                {{$get_req['val'] == 3 ? 'selected' : null }}
+                                >назва роботи</option>
+                                <option value="4"
+                                {{$get_req['val'] == 4 ? 'selected' : null }}
+                                >частка за планом</option>
+                                <option value="5"
+                                {{$get_req['val'] == 5 ? 'selected' : null }}
+                                >частка за фактом</option>
+                            </select>
+                        @else
+                        <select name="value" id="sort">
+                            <option value="1">навчальний рік</option>
+                            <option value="2">дата запису плану</option>
+                            <option value="3">назва роботи</option>
+                            <option value="4">частка за планом</option>
+                            <option value="5">частка за фактом</option>
+                        </select>
+                        @endif
+                    </label>
+            </div>
+            <div class="header-item">
+                <label for="sort">
+                    <p>Як</p>
+                    @if (!empty($get_req))
+                        <select name="type-sort" id="type-sort">
+                            <option {{$get_req['type'] == 'desc' ? 'selected' : null}}
+                            value="desc">по спаданню</option>
+                            <option {{$get_req['type'] == 'asc' ? 'selected' : null}}
+                            value="asc">по зростанню</option>
+                        </select>
+                    @else
+                    <select name="type-sort" id="type-sort">
+                        <option value="desc">по спаданню</option>
+                        <option value="asc">по зростанню</option>
+                    </select>
+                    @endif
+                </label>
+            </div>
+            <div class="header-item">
+                <button type="submit" class="btn-submit-input">Оновити</button>
+            </form>
+        </div>
+        </div>
+        @if ($errors->any())
+            <div class="wrapped-new-user-error">
+                <ul class="show-errors-server">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            </div>
+            @endif
+
+            @if (session('errorSendMessage'))
+                <div class="">
+                    {{ session()->get('errorSendMessage') }}
+                </div>
+            @endif
+            @if (session('successSend'))
+                <div class="send-message">
+                    {{ session()->get('successSend') }}
+                </div>
+            @endif
+
+        <table class="main-table" style="margin-top:25px;">
             <tr>
                 <th>
-                    Название работы
+                    Назва роботи
                 </th>
                 <th>
-                    Дата создания работы
+                    Дата створення роботи
                 </th>
                 <th>
-                    Доля по плану[%]
+                    Частка за планом
                 </th>
                 <th>
-                    Доля по факту[%]
+                    Частка за фактом
                 </th>
                 <th>
-                    Вид работы <span title="Тип выполненной работы">*</span>
+                    Вид праці <span title="Тип виконаної роботи">*</span>
                 </th>
                 <th>
-                    Подробнее
+                    Детальніше
                 </th>
                 <th>
-                    Редактировать <span title="Укажите что нужно изменить и модератор подправит.">*</span>
+                    Редагувати <span title="Вкажіть що потрібно змінити і модератор виправить.">*</span>
                 </th>
             </tr>
 
@@ -89,7 +149,7 @@
     @endif
     @isset($works)
     <div class="wrapped-elements">
-        {{ $works->onEachSide(2)->links() }}
+        {{ $works->appends(request()->query())->onEachSide(2)->links() }}
     </div>
     @endisset
     <!-- Modal window show work -->
@@ -104,19 +164,21 @@
             <div class="modal-body">
                 <form action="">
                     <label for="tema">
-                        <p>Название работы</p>
+                        <p>Назва роботи</p>
                         <h2 style="font-size: 20px; font-weight: 500;padding-bottom: 10px;
                     ">{{ $work->title }}</h2>
                     </label>
                     <label for="tema">
-                        <p>Описание работы</p>
-                        <textarea class="fix-textarea">{{ $work->description }}</textarea>
+                        <p>Опис роботи</p>
+                        <textarea class="fix-textarea text-input"
+                        style="border-radius: 0"
+                        >{{ $work->description }}</textarea>
                     </label>
-                    <h3 class="work-title-h3">Характеристики работы</h3>
-                    <table class="main-table form-work">
+                    <h3 class="work-title-h3">Характеристика роботи</h3>
+                    <table class="main-table form-work fix-table">
                         <tr>
                             <td>
-                                <p>Норма на первый семестр по плану</td>
+                                <p>Норма на перший семестр за планом</td>
                             </td>
                             <td>
                                 {{ $work->norm_semester_1_plan }}
@@ -124,7 +186,7 @@
                         </tr>
                         <tr>
                            <td>
-                                <p>Норма на второй семестр по плану</p>
+                                <p>Норма на другий семестр за планом</p>
                            </td>
                            <td>
                             {{ $work->norm_semester_2_plan }}
@@ -132,7 +194,7 @@
                         </tr>
                         <tr>
                             <td>
-                            <p>Количество по плану</p>
+                            <p>Кількість за планом</p>
                             </td>
                             <td>
                                 {{ $work->count_plan }}
@@ -140,36 +202,36 @@
                         </tr>
                         <tr>
                             <td>
-                                <p>Доля по плану</p>
+                                <p>Частка за планом</p>
                             </td>
                             <td>
                                 {{ $work->percentage_plan }}
                             </td>
                         </tr>
                         <tr>
-                            <td><p>Дата записи плана</p></td>
+                            <td><p>Дата запису плану</p></td>
                             <td>{{ $work->created_at->format('m/d/Y') }}</td>
                         </tr>
                         <tr>
-                            <td><p>Норма на первый семестр по факту</p></td>
+                            <td><p>Норма на перший семестр за фактом</p></td>
                             <td>{{ $work->norm_semester_1_fact }}</td>
                         </tr>
                         <tr>
-                            <td><p>Норма на второй семестр по факту</p></td>
+                            <td><p>Норма на другий семестр за фактом</p></td>
                             <td>{{ $work->norm_semester_2_fact }}</td>
                         </tr>
                         <tr>
-                            <td><p>Количество фактическое:</p></td>
+                            <td><p>Кількість фактичне</p></td>
                             <td>{{ $work->count_fact }}</td>
                         </tr>
                         <tr>
-                            <td><p>Доля факт</p></td>
+                            <td><p>Частка факт</p></td>
                             <td>{{ $work->percentage_fact }}</td>
                         </tr>
                     </table>
                 </form>
                 @if ($work->materials)
-                    <p class="dop-materials">Дополнительные материалы</p>
+                    <p class="dop-materials">Додаткові матеріали</p>
                     <table class="main-table form-work">
                         @foreach (json_decode($work->materials) as $item)
                         <tr>
@@ -200,7 +262,7 @@
                     <input type="text" id="tema" required readonly name="tema" value="" class="text-input">
                 </label>
                 <label for="">
-                    <p>Укажите что нужно изменить</p>
+                    <p>Вкажіть що потрібно змінити</p>
                     <textarea name="content" class="text-input" required></textarea>
                 </label>
                 <div class="form-btn">
@@ -260,7 +322,7 @@
         arrayLinks.forEach(function (item) {
             item.addEventListener("click", function (event) {
                 event.preventDefault();
-                var title = "Редактирования темы " + item.getAttribute('data-name-work');
+                var title = "Відредагувати роботу " + item.getAttribute('data-name-work');
 
                 titleForm.value = title;
 

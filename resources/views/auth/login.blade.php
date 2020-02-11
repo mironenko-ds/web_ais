@@ -7,39 +7,43 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>Вхід у систему</title>
 
     <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
+
+    <link rel="shortcut icon" href="{{ asset('img/icon.ico') }}" type="image/x-icon">
 
 </head>
 <body class="login">
   <div class="form-login">
       <div class="header">
-          <h3>Вход в систему</h3>
+          <h3>Вхід у систему</h3>
       </div>
       <form method="POST" action="{{ route('login') }}" class="body">
         @csrf
-          <input class="form-control" type="login" name="email" placeholder="Логин" required="required">
+          <input class="form-control" type="login" name="email" placeholder="Логін" required="required">
           <input class="form-control" type="password" name="password" placeholder="Пароль" required="required">
           <label>
               <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
-              Запомнить пароль
+              Запам'ятати пароль
           </label>
             @foreach ($errors->all() as $error)
-                <strong>{{ $error }}</strong>
+                <div class="message-error">
+                    <strong>{{ $error }}</strong>
+                </div>
             @endforeach
-          <input type="submit" value="Войти">
+          <input type="submit" value="Увійти">
       </form>
+      <div class="links">
       @if (Route::has('password.request'))
           <a class="btn btn-link" href="{{ route('password.request') }}">
-              Забыли свой пароль?
+            Забули пароль?
           </a>
       @endif
-      <div class="links">
-      <a href="{{ route('new.user') }}">
-              Подать заявку на регистрацию
-          </a>
-      </div>
+      <a href="{{ route('new.user') }}" style="background-color:#2d2d2d;">
+        Заявка на реєстрацію
+      </a>
+    </div>
   </div>
 </body>
 

@@ -6,9 +6,10 @@
     <img src="{{ asset('img/next.png') }}" alt="next">
     <a href="{{ route('moderator.addUser') }}">Запити на реєстрацію</a>
 </div>
-    <div class="user_offer block-no-padding" style="margin-top:30px;">
+    <div class="user_offer block-no-padding" style="margin-top:30px; max-width:1200px">
         @if (isset($request))
-        <h1>{{ $request }}</h1>
+        <h1 style="text-align: center;padding: 20px 0;"
+        >{{ $request }}</h1>
     @else
     <div class="header">
         <div class="header-item">
@@ -18,21 +19,53 @@
                 <form action="" method="get">
                     <label for="sort">
                         <p>Сортування</p>
-                        <select name="sort" id="sort">
-                            <option value="1">Ім'я</option>
+                        @if (!empty($get_req))
+                            <select name="value" id="sort">
+                                <option value="1"
+                                {{$get_req['val'] == 1 ? 'selected' : null}}
+                                >співробітник</option>
+                                <option value="2"
+                                {{$get_req['val'] == 2 ? 'selected' : null}}
+                                >пошта</option>
+                                <option value="3"
+                                {{$get_req['val'] == 3 ? 'selected' : null}}
+                                >посада</option>
+                                <option value="4"
+                                {{$get_req['val'] == 4 ? 'selected' : null}}
+                                >наукова ступінь</option>
+                            </select>
+                        @else
+                        <select name="value" id="sort">
+                            <option value="1">співробітник</option>
+                            <option value="2">пошта</option>
+                            <option value="3">посада</option>
+                            <option value="4">наукова ступінь</option>
                         </select>
+                        @endif
                     </label>
             </div>
             <div class="header-item">
-                    <label for="sort">
-                        <p>Як</p>
+                <label for="sort">
+                    <p>Як</p>
+                    @if (!empty($get_req))
                         <select name="type-sort" id="type-sort">
-                            <option value="1">по спаданню</option>
-                            <option value="2">по зростанню</option>
+                            <option {{$get_req['type'] == 'desc' ? 'selected' : null}}
+                            value="desc">по спаданню</option>
+                            <option {{$get_req['type'] == 'asc' ? 'selected' : null}}
+                            value="asc">по зростанню</option>
                         </select>
-                    </label>
-                </form>
+                    @else
+                    <select name="type-sort" id="type-sort">
+                        <option value="desc">по спаданню</option>
+                        <option value="asc">по зростанню</option>
+                    </select>
+                    @endif
+                </label>
             </div>
+            <div class="header-item">
+                <button type="submit" class="btn-submit-input">Оновити</button>
+            </form>
+        </div>
         </div>
         <div class="wrapped-form">
         <table class="main-table" style="margin-top:20px; width:100%">
@@ -45,6 +78,9 @@
                 </th>
                 <th>
                    Посада
+                </th>
+                <th>
+                    Наукова ступінь
                 </th>
                 <th>
                     Підтвердити <span title="Після того як ви підтвердите, в систему додасться новий обліковий запис і дані для входу відправляться на пошту користувачеві" style="color:red;">*</span>
@@ -63,6 +99,9 @@
                     </td>
                     <td>
                         {{ $user->pos->post_name }}
+                    </td>
+                    <td>
+                        {{ $user->deg->degree_name }}
                     </td>
                     <td>
                         <form action="{{ route('moderator.userAdd') }}"
@@ -90,7 +129,7 @@
         </table>
         @isset($req_user)
         <div class="wrapped-elements">
-            {{ $req_user->onEachSide(2)->links() }}
+            {{ $req_user->appends(request()->query())->onEachSide(2)->links() }}
         </div>
         @endisset
     </div>

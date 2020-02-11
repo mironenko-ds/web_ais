@@ -15,22 +15,55 @@
                 <p>Кількість робіт: {{$works->count()}}</p>
             </div>
             <div class="header-item">
-                <form action="" method="get">
-                    <label for="sort">
-                        <p>Сортування</p>
-                        <select name="sort" id="sort">
-                            <option value="1">Ім'я</option>
+                <form method="GET" action="">
+                <label for="sort">
+                    <p>Сортування</p>
+                    @if (!empty($get_req))
+                        <select name="value" id="sort">
+                            <option value="1"
+                            {{$get_req['val'] == 1 ? 'selected' : null}}
+                            >назва роботи</option>
+                            <option value="2"
+                            {{$get_req['val'] == 2 ? 'selected' : null}}
+                            >дата створення</option>
+                            <option value="3"
+                            {{$get_req['val'] == 3 ? 'selected' : null}}
+                            >частка за планом</option>
+                            <option value="4"
+                            {{$get_req['val'] == 4 ? 'selected' : null}}
+                            >частка за фактом</option>
                         </select>
-                    </label>
+                    @else
+                    <select name="value" id="sort">
+                        <option value="1">назва роботи</option>
+                        <option value="2">дата створення</option>
+                        <option value="3">частка за планом</option>
+                        <option value="4">частка за фактом</option>
+                        {{-- <option value="3">частка за планом</option> --}}
+                    </select>
+                    @endif
+                </label>
             </div>
             <div class="header-item">
-                    <label for="sort">
-                        <p>Як</p>
+                <label for="sort">
+                    <p>Як</p>
+                    @if (!empty($get_req))
                         <select name="type-sort" id="type-sort">
-                            <option value="1">по спаданню</option>
-                            <option value="2">по зростанню</option>
+                            <option {{$get_req['type'] == 'desc' ? 'selected' : null}}
+                            value="desc">по спаданню</option>
+                            <option {{$get_req['type'] == 'asc' ? 'selected' : null}}
+                            value="asc">по зростанню</option>
                         </select>
-                    </label>
+                    @else
+                    <select name="type-sort" id="type-sort">
+                        <option value="desc">по спаданню</option>
+                        <option value="asc">по зростанню</option>
+                    </select>
+                    @endif
+                </label>
+        </div>
+            <div class="header-item">
+                    <button type="submit" class="btn-submit-input">Оновити</button>
                 </form>
             </div>
             <div class="header-item">
@@ -60,7 +93,7 @@
                 <th>
                     Редагувати
                 </th>
-                <th>
+                <th style="min-width: 90px;">
                     Статус
                 </th>
                 <th>
@@ -93,7 +126,15 @@
                         </div>
                     </td>
                     <td>
-                        <p>{{$work->status ? 'схвалено' : 'в очікуванні схвалення'}}</p>
+                        @if ($work->status)
+                            <div class="status-ok">
+                                <p>схвалено</p>
+                            </div>
+                        @else
+                        <div class="status-pend">
+                            <p>в обробці</p>
+                        </div>
+                        @endif
                     </td>
                     <td>
                         <form id="delete-work" action="{{ route('moderator.deleteWork') }}"
@@ -113,7 +154,7 @@
     @endif
     @isset($works)
     <div class="wrapped-elements">
-        {{ $works->onEachSide(2)->links() }}
+        {{ $works->appends(request()->query())->onEachSide(2)->links() }}
     </div>
     @endisset
     </div>

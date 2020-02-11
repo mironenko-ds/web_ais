@@ -42,11 +42,11 @@
                 @csrf
                 <div class="user-group">
                     <label for="userEmail">
-                        <input type="email" disabled="true" id="userEmail" class="text-input" value="{{ $email }}">
+                        <input type="email" style="width: 268px;" disabled="true" id="userEmail" class="text-input" value="{{ $email }}">
                         <p>Пошта</p>
                     </label>
                     <label for="userNewEmail">
-                        <input type="email" required name="new-email" id="userNewEmail" class="text-input">
+                        <input type="email" style="width: 268px;" required name="new-email" id="userNewEmail" class="text-input">
                         <p>Нова пошта</p>
                     </label>
                     <button type="submit" class="btn-submit-input">Оновити</button>
@@ -107,7 +107,7 @@
                 Змінити пароль
             </h1>
         </div>
-        <div class="wrapped-child">
+        <div class="wrapped-child" style="border-bottom: none;padding-bottom: 0;">
             <form action="{{ route('user.resetPass') }}" method="POST">
                 @csrf
                 <div class="user-group">

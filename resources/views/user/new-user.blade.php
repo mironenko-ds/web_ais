@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,26 +11,27 @@
    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
-    <title>Заявка на регистрацию</title>
+    <link rel="shortcut icon" href="{{ asset('img/icon.ico') }}" type="image/x-icon">
+    <title>Заявка на реєстрацію</title>
 </head>
 <body class="new-user">
     <div class="form-register">
-        <h1>Заявка на регистрацию</h1>
+        <h1>Заявка на реєстрацію</h1>
     <form action="/register" method="POST">
         @csrf
             <div class="group-text">
-            <input type="text" required placeholder="Имя" name="name">
-            <input type="text" required placeholder="Фамилия" name="surname">
-            <input type="text" required placeholder="Отчество" name="patronymic">
-            <input type="email" required placeholder="Почта" name="email">
+            <input type="text" required placeholder="Ім'я" name="name">
+            <input type="text" required placeholder="Прізвище" name="surname">
+            <input type="text" required placeholder="По батькові" name="patronymic">
+            <input type="email" required placeholder="Пошта" name="email">
         </div>
             <div class="group-label">
-                <label for="faculty_id">Факультет</label>
-            <select id="faculty_id" name="faculty">
-            @foreach ($facultes as $faculty)
-                <option value="{{ $faculty->id }}">{{ $faculty->faculty_name }}</option>
-            @endforeach
-            </select>
+                    <label for="faculty_id">Факультет</label>
+                        <select id="faculty_id" name="faculty" style="max-width: 266px;">
+                            @foreach ($facultes as $faculty)
+                                <option value="{{ $faculty->id }}">{{ $faculty->faculty_name }}</option>
+                            @endforeach
+                        </select>
             </div>
 
             <div class="group-label">
@@ -41,7 +42,7 @@
             </div>
 
             <div class="group-label">
-                <label for="degree_id">Ученая&nbsp;степень</label>
+                <label for="degree_id">Наукова&nbsp;ступінь</label>
             <select id="degree" name="degree">
                 @foreach ($degrees as $degree)
                     <option value="{{ $degree->id }}">{{ $degree->degree_name }}</option>
@@ -49,7 +50,7 @@
             </select>
             </div>
            <div class="group-label">
-            <label for="post_id">Должность</label>
+            <label for="post_id">Посада</label>
             <select id="post" name="post">
                 @foreach ($posts as $post)
                     <option value="{{ $post->id }}">{{ $post->post_name }}</option>
@@ -58,13 +59,13 @@
            </div>
 
             <div class="submit">
-                <input type="submit" class="btn-submit-input" value="Отправить">
+                <input type="submit" class="btn-submit-input" value="Відправити">
             </div>
         </form>
         <div class="new-user-error">
         </div>
             @if (session('success'))
-                <div class="success">
+                <div class="success-user">
                     {{ session()->get('success') }}
                 </div>
             @endif
@@ -73,11 +74,15 @@
                     {{ session()->get('errorAdd') }}
                 </div>
             @endif
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+            @if ($errors->any())
+                <div class="wrapped-new-user-error">
+                    <ul class="show-errors-server">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
     </div>
     <script defer>
         (

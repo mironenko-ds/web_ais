@@ -18,29 +18,56 @@
                     <form action="" method="get">
                         <label for="sort">
                             <p>Сортування</p>
-                            <select name="sort" id="sort">
-                                <option value="1">Ім'я</option>
+                            @if (!empty($get_req))
+                                <select name="value" id="sort">
+                                    <option value="1"
+                                    {{$get_req['val'] == 1 ? 'selected' : null}}
+                                    >співробітник</option>
+                                    <option value="2"
+                                    {{$get_req['val'] == 2 ? 'selected' : null}}
+                                    >тема</option>
+                                </select>
+                            @else
+                            <select name="value" id="sort">
+                                <option value="1">співробітник</option>
+                                <option value="2">тема</option>
                             </select>
+                            @endif
                         </label>
                 </div>
                 <div class="header-item">
-                        <label for="sort">
-                            <p>Як</p>
+                    <label for="sort">
+                        <p>Як</p>
+                        @if (!empty($get_req))
                             <select name="type-sort" id="type-sort">
-                                <option value="1">по спаданню</option>
-                                <option value="2">по зростанню</option>
+                                <option {{$get_req['type'] == 'desc' ? 'selected' : null}}
+                                value="desc">по спаданню</option>
+                                <option {{$get_req['type'] == 'asc' ? 'selected' : null}}
+                                value="asc">по зростанню</option>
                             </select>
-                        </label>
+                        @else
+                        <select name="type-sort" id="type-sort">
+                            <option value="desc">по спаданню</option>
+                            <option value="asc">по зростанню</option>
+                        </select>
+                        @endif
+                    </label>
+                </div>
+                <div class="header-item">
+                        <button type="submit" class="btn-submit-input">Оновити</button>
                     </form>
                 </div>
             </div>
-            <table class="main-table" style="margin-top:20px;">
+            <table class="main-table" style="margin-top:20px; width: 100%">
                 <tr>
                     <th>
                         Співробітник
                     </th>
                     <th>
                         Тема
+                    </th>
+                    <th>
+                        Дата створення
                     </th>
                     <th>
                         Питання
@@ -60,8 +87,22 @@
                         <td>
                             {{ $question->title }}
                         </td>
+                        <td>
+                            {{ $question->created_at->format('m/d/Y') }}
+                        </td>
                         <td style="padding: 0; text-align:left;">
-                           <textarea readonly style="width:100%; height:200px; resize:none; border:none;">{{ $question->content }}</textarea>
+                           {{-- <textarea readonly style="width:100%; height:200px; resize:none; border:none;">{{ $question->content }}</textarea> --}}
+                           <div data-req-id="{{ $question->id }}" class="show-question">
+                                <img src="{{ asset('img/detail.png') }}" alt="add">
+                            </div>
+                            <div class="modal modal-quest" data-req-id="{{ $question->id }}">
+                                <div class="modal-header modal-header-req" data-req-id="{{ $question->id }}">
+                                    <img  src="{{ asset('img/delete.png') }}" alt="close">
+                                </div>
+                                <div class="modal-body">
+                                    <textarea style="height: 400px; margin-top:10px;border-radius:0" class="text-input">{{  $question->content }}</textarea>
+                                </div>
+                            </div>
                         </td>
                         <td>
                             <div data-req-id="{{ $question->id }}" class="show-bar">
@@ -107,7 +148,7 @@
                         <input type="text" hidden class="feedback_id" name="feedback_id">
                         <label for="">
                             <p style="font-size: 20px;padding: 10px 0;">Відповідь</p>
-                            <textarea name="content" style="width: 100%;height: 230px;"></textarea>
+                            <textarea class="text-input" name="content" style="resize:none; width: 100%;height: 230px;"></textarea>
                         </label>
                         <div class="group-end" style="display: flex;justify-content: space-between;margin-top: 10px;">
                             <label for="">
@@ -122,7 +163,7 @@
             </table>
             @isset($questions)
             <div class="wrapped-elements">
-                {{ $questions->onEachSide(2)->links() }}
+                {{ $questions->appends(request()->query())->onEachSide(2)->links() }}
             </div>
             @endisset
         @endif
@@ -137,6 +178,33 @@
         var overflay = document.querySelector('.overlay');
         var inputId = document.querySelector('.feedback_id');
         var closeModals = document.querySelectorAll('#close-modal');
+        var showQuestion = document.querySelectorAll('.show-question');
+        var modalQuest = document.querySelectorAll('.modal-quest');
+        var closeQ =document.querySelectorAll('.modal-header-req');
+
+        closeQ.forEach(function(Head){
+            Head.addEventListener('click', function(){
+                overflay.classList.remove('show-block');
+                var headId = this.getAttribute('data-req-id');
+                modalQuest.forEach(function(Body){
+                    if(Body.getAttribute('data-req-id') == headId ){
+                        Body.classList.remove('show-block');
+                    }
+                });
+            });
+        });
+
+        showQuestion.forEach(function(item){
+            item.addEventListener('click', function(){
+                var idData = this.getAttribute('data-req-id');
+                modalQuest.forEach(function(second){
+                    if(second.getAttribute('data-req-id') == idData){
+                        second.classList.add('show-block');
+                        overflay.classList.add('show-block');
+                    }
+                });
+            });
+        });
 
         closeModals.forEach(function(itemC){
             itemC.addEventListener('click', function(){
@@ -155,6 +223,11 @@
                 modalEdits.forEach(function(item){
                     if(item.classList.contains('show-block')){
                         item.classList.remove('show-block');
+                    }
+                });
+                modalQuest.forEach(function(second){
+                    if(second.classList.contains('show-block')){
+                        second.classList.remove('show-block');
                     }
                 });
         });

@@ -11,4 +11,8 @@ class UserRole extends Model
     public function user(){
         return $this->hasOne('App\Models\User');
     }
+
+    public function feedback(){
+        return $this->hasOne('App\Models\Feedback');
+    }
 }

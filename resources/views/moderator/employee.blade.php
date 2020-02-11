@@ -6,7 +6,7 @@
         <img src="{{ asset('img/next.png') }}" alt="next">
         <a href="{{ route('moderator.employees') }}">Співробітники</a>
     </div>
-    <div class="user_offer block-no-padding" style="margin-top:30px">
+    <div class="user_offer block-no-padding" style="margin-top:30px;max-width: 1200px;">
         <!-- Show users -->
             @if (isset($UsersEmpty))
                 <h1 style="text-align: center;padding: 15px 0;font-weight: 400;">
@@ -21,19 +21,55 @@
                         <form action="" method="get">
                             <label for="sort">
                                 <p>Сортування</p>
-                                <select name="sort" id="sort">
-                                    <option value="1">Ім'я</option>
+                                @if (!empty($get_req))
+                                    <select name="value" id="sort">
+                                        <option value="1"
+                                        {{$get_req['val'] == 1 ? 'selected' : null}}
+                                        >дата реєстрації</option>
+                                        <option value="2"
+                                        {{$get_req['val'] == 2 ? 'selected' : null}}
+                                        >посада</option>
+                                        <option value="3"
+                                        {{$get_req['val'] == 3 ? 'selected' : null}}
+                                        >наукова ступінь</option>
+                                        <option value="4"
+                                        {{$get_req['val'] == 4 ? 'selected' : null}}
+                                        >ім'я</option>
+                                        <option value="5"
+                                        {{$get_req['val'] == 5 ? 'selected' : null}}
+                                        >прізвище</option>
+                                    </select>
+                                @else
+                                <select name="value" id="sort">
+                                    <option value="1">дата реєстрації</option>
+                                    <option value="2">посада</option>
+                                    <option value="3">наукова ступінь</option>
+                                    <option value="4">ім'я</option>
+                                    <option value="5">прізвище</option>
                                 </select>
+                                @endif
                             </label>
                     </div>
                     <div class="header-item">
-                            <label for="sort">
-                                <p>Як</p>
+                        <label for="sort">
+                            <p>Як</p>
+                            @if (!empty($get_req))
                                 <select name="type-sort" id="type-sort">
-                                    <option value="1">по спаданню</option>
-                                    <option value="2">по зростанню</option>
+                                    <option {{$get_req['type'] == 'desc' ? 'selected' : null}}
+                                    value="desc">по спаданню</option>
+                                    <option {{$get_req['type'] == 'asc' ? 'selected' : null}}
+                                    value="asc">по зростанню</option>
                                 </select>
-                            </label>
+                            @else
+                            <select name="type-sort" id="type-sort">
+                                <option value="desc">по спаданню</option>
+                                <option value="asc">по зростанню</option>
+                            </select>
+                            @endif
+                        </label>
+                    </div>
+                    <div class="header-item">
+                            <button type="submit" class="btn-submit-input">Оновити</button>
                         </form>
                     </div>
                 </div>
@@ -79,7 +115,6 @@
                                 Видалити
                             </th>
                         </tr>
-
                     @foreach ($users as $user)
                             @if (Auth::user()->id == $user->id)
                                 <tr style="background-color:rgba(0,0,0, .3);">
@@ -96,6 +131,9 @@
                                 {{ $user->degree->degree_name }}
                             </td>
                             <td>
+                                {{-- {{ $user->user->created_at->format('m/d/Y') }} --}}
+                                {{-- ниже какое-то странный баг, я хер его значет что с ним не так
+                                    так что не трогайте, а то вызывайте сатану --}}
                                 {{ $user->created_at->format('m/d/Y') }}
                             </td>
                             <td>
@@ -184,7 +222,7 @@
                 </div>
                 @isset($users)
                     <div class="wrapped-elements">
-                        {{ $users->onEachSide(2)->links() }}
+                        {{ $users->appends(request()->query())->onEachSide(2)->links() }}
                     </div>
                 @endisset
                 <!-- Table users -->

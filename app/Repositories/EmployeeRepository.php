@@ -16,7 +16,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     {
         if($pug){
             return Employee::where('department_id', '=', $id)
-                ->with('departament', 'degree', 'post', 'user');
+                ->with('departament');
         }else{
             return Employee::where('department_id', '=', $id)
                 ->with('departament', 'degree', 'post', 'user')

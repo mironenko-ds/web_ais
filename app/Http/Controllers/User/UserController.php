@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\File;
 use App\Services\AddFileService;
 use App\Services\MakeWorkService;
 use App\Services\SendUserMessage;
+use App\Services\SortUserWork;
 use App\Services\UserInfoService;
 use Illuminate\Http\Response;
 
@@ -75,9 +76,9 @@ class UserController extends Controller
         $userRequest->save();
 
         if($userRequest){
-            return redirect()->route('new.user')->with(['success' => 'Заявка отправлена! После обработки заявки мы вам отправим письмо на почту с результатом.']);
+            return redirect()->route('new.user')->with(['success' => 'Заявку відправлено! Після обробки заявки ми вам надішлемо лист на пошту з результатом.']);
         }else{
-            return back()->with(['errorAdd' => 'Заявка не отправлена! Попробуйте указать другие данные'])->withInput();
+            return back()->with(['errorAdd' => 'Заявка не відправлена! Спробуйте вказати інші дані'])->withInput();
 
         }
 
@@ -113,19 +114,27 @@ class UserController extends Controller
         return view('user.account', $info);
     }
 
-    public function myWorks(){
+    public function myWorks(Request $request){
 
         $user_id = Auth::user()->employee->id;
+        $get_req = array();
 
-        $works = PlanWork::where([
-            ['employee_id', '=', $user_id],
-            ['status', '=', 1]
-        ])->paginate(15);
-
-        if($works->count() == 0){ // записи отсутствуют
-            return view('user.my-works', ['noWorks' => 'Работы отсутсвуют']);
+        if($request->input('value') && $request->input('type-sort')){
+           $result = SortUserWork::sort($request, $user_id);
+           $works = $result['value'];
+           $get_req = $result['get'];
         }else{
-            return view('user.my-works', compact('works'));
+            $works = PlanWork::where([
+                ['employee_id', '=', $user_id],
+                ['status', '=', 1]
+            ])
+            ->with('work')
+            ->paginate(15);
+        }
+        if($works->count() == 0){ // записи отсутствуют
+            return view('user.my-works', ['noWorks' => 'Роботи відсутні']);
+        }else{
+            return view('user.my-works', compact('works', 'get_req'));
         }
     }
 
@@ -143,7 +152,7 @@ class UserController extends Controller
             return back()->with(['errorSendMessage' => $th->getMessage()]);
         }
 
-        return redirect()->route('user.works')->with(['successSend' => 'Ваше сообщение отправлено']);
+        return redirect()->route('user.works')->with(['successSend' => 'Ваше повідомлення надіслано']);
 
     }
 
@@ -187,7 +196,7 @@ class UserController extends Controller
             $message->materials = json_encode($json);
         }
         $message->save();
-        return redirect()->route('user.feedback')->with(['successFeedback' => 'Ваше сообщение отправлено.']);
+        return redirect()->route('user.feedback')->with(['successFeedback' => 'Ваше повідомлення надіслано.']);
 
 
     }
@@ -263,7 +272,7 @@ class UserController extends Controller
         $deletePost->departament_id = Auth::user()->employee->department_id;
         $deletePost->save();
 
-        return redirect()->route('user.account')->with(['successSend' => 'Сообщение отправлено!']);
+        return redirect()->route('user.account')->with(['successSend' => 'Повідомлення відправлено!']);
 
     }
 
@@ -283,24 +292,69 @@ class UserController extends Controller
         try {
             $work->save();
         } catch (\Throwable $th) {
-            return back()->with(['errorMake' => $th->getMessage()])->withInput();
+            return back()
+                ->with(['errorMake' => $th->getMessage()])
+                ->withInput();
+        }
+        return redirect()
+            ->route('user.addWork')
+            ->with(['successWork' => 'Робота додана! На протязі декількох днів модератор обробить вашу роботу.']);
+    }
+    public function MyMessage(Request $request){
+
+        $user_id = Auth::user()->id;
+        $get_req = array();
+
+        if($request->input('value') && $request->input('type-sort')){
+            switch ($request->input('value')) {
+                case '1':
+                        if($request->input('type-sort') == 'desc'){
+                            $answers = FeedbackAnser::orderBy('asked_user_read', 'desc')
+                                ->where('asked_user', '=', $user_id)
+                                ->with('user_answered', 'feedback')
+                                ->paginate(15);
+                            $get_req['val'] = 1; $get_req['type']= 'desc';
+                        }else{
+                            $answers = FeedbackAnser::orderBy('asked_user_read', 'asc')
+                                ->where('asked_user', '=', $user_id)
+                                ->with('user_answered', 'feedback')
+                                ->paginate(15);
+                            $get_req['val'] = 1; $get_req['type']= 'asc';
+                        }
+                    break;
+                case '2':
+                        if($request->input('type-sort') == 'desc'){
+                            $answers = FeedbackAnser::orderBy('created_at', 'desc')
+                                ->where('asked_user', '=', $user_id)
+                                ->with('user_answered', 'feedback')
+                                ->paginate(15);
+                            $get_req['val'] = 2; $get_req['type']= 'desc';
+                        }else{
+                            $answers = FeedbackAnser::orderBy('created_at', 'asc')
+                                ->where('asked_user', '=', $user_id)
+                                ->with('user_answered', 'feedback')
+                                ->paginate(15);
+                            $get_req['val'] = 2; $get_req['type']= 'asc';
+                        }
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+        }else{
+        $answers = FeedbackAnser::orderBy('id', 'desc')
+            ->where('asked_user', '=', $user_id)
+            ->with('user_answered', 'feedback')
+            ->paginate(15);
         }
 
 
-        return redirect()->route('user.addWork')->with(['successWork' => 'Работа добавлена! В течении нескольких дней модератор обработает вашу работу.']);
-    }
-    public function MyMessage(){
-
-        $user_id = Auth::user()->id;
-
-        $answers = FeedbackAnser::orderBy('id', 'desc')->where('asked_user', '=', $user_id)->paginate(15);
-
         if($answers->count() == 0){ // записи отсутствуют
-            return view('user.my-message', ['noMessage' => 'Сообщения отсутсвуют']);
+            return view('user.my-message', ['noMessage' => 'Повідомлення відсутні']);
         }else{
             $count_no_read = FeedbackAnser::where([['asked_user_read', '=', false],['asked_user', '=', $user_id]])->count();
 
-            return view('user.my-message', compact('answers', 'count_no_read'));
+            return view('user.my-message', compact('answers', 'count_no_read', 'get_req'));
         }
     }
 

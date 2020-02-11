@@ -5,13 +5,32 @@
         <a href="#">Головна</a>
     </div>
     <div class="user_offer block">
-        <h1>Загальна інформація</h1>
-        <p>
-            Добро пожаловать в систему учета научных публикаций преподавателей. Вы можете просмотреть свои публикации, подать заявки на добавление новых и связаться с модератором
-        </p>
-    </div>
-    <div class="user_offer block">
-    <canvas id="myChart" style="height: 500px"></canvas>
+        @if (isset($facultes))
+            <div class="wrapped-faculty">
+                @foreach ($facultes as $faculty)
+                <a href="{{ route('admin.faculty', $faculty->id) }}">
+                    <div class="faculty-item">
+                        <div class="faculty-name">
+                            <h2>{{ $faculty->faculty_name }}</h2>
+                        </div>
+                        <div class="faculty-dep">
+                           @if ($faculty->departament_count != 0)
+                           Кількість кафедр {{ $faculty->departament_count }}
+                           @else
+                           кафедри відсутні
+                           @endif
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        @else
+            <div class="no-faculty">
+                <h1>
+                    Факультети відсутні
+                </h1>
+            </div>
+        @endif
     </div>
 @endsection
 @section('scriptUser')

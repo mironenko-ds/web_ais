@@ -19,7 +19,7 @@ class Employee extends Model
     }
 
     public function plan_work(){
-        return $this->hasOne('App\Models\User');
+        return $this->hasMany('App\Models\PlanWork');
     }
 
     public function departament(){

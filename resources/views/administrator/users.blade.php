@@ -15,27 +15,67 @@
             @else
                 <div class="header">
                     <div class="header-item">
-                        <p>Співробітників на кафедрі: {{$users->total()}}</p>
+                        <p>Користувачів в системі: {{$users->total()}}</p>
                     </div>
                     <div class="header-item">
                         <form action="" method="get">
                             <label for="sort">
                                 <p>Сортування</p>
-                                <select name="sort" id="sort">
-                                    <option value="1">Ім'я</option>
+                                @if (!empty($get_req))
+                                    <select name="value" id="sort">
+                                        <option value="1"
+                                        {{$get_req['val'] == 1 ? 'selected' : null}}
+                                        >прізвище</option>
+                                        <option value="2"
+                                        {{$get_req['val'] == 2 ? 'selected' : null}}
+                                        >посада</option>
+                                        <option value="3"
+                                        {{$get_req['val'] == 3 ? 'selected' : null}}
+                                        >наукова ступінь</option>
+                                        <option value="4"
+                                        {{$get_req['val'] == 4 ? 'selected' : null}}
+                                        >факультет</option>
+                                        <option value="5"
+                                        {{$get_req['val'] == 5 ? 'selected' : null}}
+                                        >кафедра</option>
+                                        <option value="6"
+                                        {{$get_req['val'] == 6 ? 'selected' : null}}
+                                        >дата реєстрації</option>
+                                    </select>
+                                @else
+                                <select name="value" id="sort">
+                                    <option value="1">прізвище</option>
+                                    <option value="2">посада</option>
+                                    <option value="3">наукова ступінь</option>
+                                    <option value="4">факультет</option>
+                                    <option value="5">кафедра</option>
+                                    <option value="6">дата реєстрації</option>
                                 </select>
+                                @endif
                             </label>
                     </div>
                     <div class="header-item">
-                            <label for="sort">
-                                <p>Як</p>
+                        <label for="sort">
+                            <p>Як</p>
+                            @if (!empty($get_req))
                                 <select name="type-sort" id="type-sort">
-                                    <option value="1">по спаданню</option>
-                                    <option value="2">по зростанню</option>
+                                    <option {{$get_req['type'] == 'desc' ? 'selected' : null}}
+                                    value="desc">по спаданню</option>
+                                    <option {{$get_req['type'] == 'asc' ? 'selected' : null}}
+                                    value="asc">по зростанню</option>
                                 </select>
-                            </label>
-                        </form>
+                            @else
+                            <select name="type-sort" id="type-sort">
+                                <option value="desc">по спаданню</option>
+                                <option value="asc">по зростанню</option>
+                            </select>
+                            @endif
+                        </label>
                     </div>
+                    <div class="header-item">
+                        <button type="submit" class="btn-submit-input">Оновити</button>
+                    </form>
+                </div>
                 </div>
                 <!--Erors -->
                     @if (session('successDelete'))
@@ -58,7 +98,7 @@
                 <!--Erors -->
                 <!-- Table users -->
                 <div class="wrap-table">
-                    <table class="main-table">
+                    <table class="main-table" style="width:100%">
                         <tr>
                             <th>
                                 Прізвище
@@ -102,10 +142,10 @@
                                 {{ $user->degree->degree_name }}
                             </td>
                             <td>
-                                {{ $user->departament->departament_name }}
+                                {{ $user->departament->faculty->faculty_name }}
                             </td>
                             <td>
-                                {{ $user->departament->faculty->faculty_name }}
+                                {{ $user->departament->departament_name }}
                             </td>
                             <td>
                                 {{ $user->created_at->format('m/d/Y') }}
@@ -196,7 +236,7 @@
                 </div>
                 @isset($users)
                     <div class="wrapped-elements">
-                        {{ $users->onEachSide(2)->links() }}
+                        {{ $users->appends(request()->query())->onEachSide(2)->links() }}
                     </div>
                 @endisset
                 <!-- Table users -->
@@ -207,10 +247,10 @@
                 <img id="close-modal-delete" src="{{ asset('img/delete.png') }}" alt="close">
             </div>
             <div class="modal-body">
-                <form id="form-del-user" action="{{ route('moderator.employeesDelete') }}" method="POST">
+                <form id="form-del-user" action="{{ route('admin.del-user') }}" method="POST">
                     @csrf
                     <input type="answer_id" id="user-id" name="user_id" hidden value="">
-                    <h2 class="requestText">Вы действительно хотите удалить сообщение?</h2>
+                    <h2 class="requestText"></h2>
                     <div class="btn-form-group">
                         <input type="submit" value="Да" style="background-color:red;" class="btn-submit-input">
                         <input id="no-delete-item" type="button" value="Нет" class="btn-submit-input">

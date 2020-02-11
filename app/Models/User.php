@@ -46,11 +46,11 @@ class User extends Authenticatable
     }
 
     public function feedback(){
-        return $this->hasOne('App\Models\Feedback');
+        return $this->hasMany('App\Models\Feedback');
     }
 
     public function feedbackAnswer(){
-        return $this->hasOne('App\Models\FeedbackAnswer');
+        return $this->hasOne('App\Models\FeedbackAnser');
     }
 
     public function employee(){

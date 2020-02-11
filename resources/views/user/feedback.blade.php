@@ -1,12 +1,21 @@
 @extends('user.layout.template')
-@section('title', 'Связаться с модератором')
+@section('title', 'Зв\'язатися з модератором')
 @section('content')
 <div class="page__title">
-<a href="{{ route('user.index') }}">Главная</a>
+<a href="{{ route('user.index') }}">Головна</a>
     <img src="{{ asset('img/next.png') }}" alt="next">
-<a href="{{ route('user.feedback') }}">Связь с модератором</a>
+<a href="{{ route('user.feedback') }}">Зв'язатися з модератором</a>
 </div>
 <div class="user-feedback block">
+    @if ($errors->any())
+        <div class="wrapped-new-user-error">
+            <ul class="show-errors-server">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     @if (session('successFeedback'))
     <div class="send-mes">
         <h1>{{ session()->get('successFeedback') }}</h1>
@@ -21,29 +30,21 @@
                 <input id="tema" name="tema" type="text" class="text-input" required>
             </label>
             <label for="">
-                <p>Получатель</p>
+                <p>Одержувач</p>
                 <select name="type-user" id="type-user">
                     <option value="2">Модератор</option>
-                    <option value="3">Администратор</option>
+                    <option value="3">Адміністратор</option>
                 </select>
             </label>
         </div>
         <textarea class="text-input" name="content" required></textarea>
         <div class="form-buttom-group">
-            <input type="file" name="attachment[]" multiple/>
-            <button type="submit" class="btn-submit-input">Отправить</button>
+            <div class="add-files">
+                <p>Додаткові матеріали</p>
+                <input type="file" name="attachment[]" multiple/>
+            </div>
+            <button type="submit" class="btn-submit-input">Відправити</button>
         </div>
     </form>
 </div>
-@endsection
-
-@section('script')
-<script>
-    var link = "{{ asset('img/delete.png') }}";
-    var addMaterial = document.querySelector(".add-materials");
-
-    addMaterial.addEventListener("click", function () {
-        NewInput(".file-inputs", link);
-    })
-</script>
 @endsection

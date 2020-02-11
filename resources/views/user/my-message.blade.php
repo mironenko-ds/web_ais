@@ -1,46 +1,73 @@
 @extends('user.layout.template')
-@section('title', 'Мои сообщения')
+@section('title', 'Мої повідомлення')
 @section('content')
     <div class="page__title">
-        <a href="{{ route('user.index') }}">Главная</a>
+        <a href="{{ route('user.index') }}">Головна</a>
             <img src="{{ asset('img/next.png') }}" alt="next">
-        <a href="{{ route('user.message') }}">Мои сообщения</a>
+        <a href="{{ route('user.message') }}">мої повідомлення</a>
     </div>
     <div class="user-message block-no-padding">
-
         @if (session('errorDeleteAll'))
         <div class="">
             {{ session()->get('errorDeleteAll') }}
         </div>
         @endif
         @if (session('successDeleteAll'))
-            <div class="">
+            <div class="delete-all-mes">
                 {{ session()->get('successDeleteAll') }}
             </div>
         @endif
 
         @if (isset($noMessage))
-            <h1>{{ $noMessage }}</h1>
+            <h1 style="text-align:center;padding:20px 0">{{ $noMessage }}</h1>
         @else
         <div class="header">
             <div class="header-item">
-                <p>Сообщений всего: {{$answers->count()}}</p>
-            </div>
-            <div class="header-item">
-                <p>Непрочитанных: {{ $count_no_read }}</p>
+                <p>Непрочитаних: {{ $count_no_read }}</p>
             </div>
             <div class="header-item">
                 <form action="" method="get">
                     <label for="sort">
-                        <p>Сортировка</p>
-                        <select name="type-sort" id="sort">
-                            <option value="1"></option>
+                        <p>Сортування</p>
+                        @if (!empty($get_req))
+                            <select name="value" id="sort">
+                                <option {{$get_req['val'] == 1 ? 'selected' : null}}
+                                    value="1">прочитані</option>
+                                <option {{$get_req['val'] == 2 ? 'selected' : null}}
+                                    value="2">додано</option>
+                            </select>
+                        @else
+                        <select name="value" id="sort">
+                            <option value="1">прочитані</option>
+                            <option value="2">додано</option>
                         </select>
+                        @endif
                     </label>
+            </div>
+            <div class="header-item">
+                    <label for="sort">
+                        <p>Як</p>
+                        @if (!empty($get_req))
+                            <select name="type-sort" id="type-sort">
+                                <option {{$get_req['type'] == 'desc' ? 'selected' : null}}
+                                value="desc">по спаданню</option>
+                                <option {{$get_req['type'] == 'asc' ? 'selected' : null}}
+                                value="asc">по зростанню</option>
+                            </select>
+                        @else
+                        <select name="type-sort" id="type-sort">
+                            <option value="desc">по спаданню</option>
+                            <option value="asc">по зростанню</option>
+                        </select>
+                        @endif
+                    </label>
+            </div>
+            <div class="header-item">
+                    <button type="submit" class="btn-submit-input">Оновити</button>
                 </form>
             </div>
             <div class="header-item">
-                <img title="Нажми чтобы удалить все сообщения" src="{{asset('img/delete-item.png') }}" alt="delete all"
+                <img title="Натисни щоб видалити всі повідомлення" src="{{asset('img/delete-item.png') }}" alt="delete all"
                     id="deleteAll">
             </div>
         </div> <!-- end block header-->
@@ -72,7 +99,7 @@
         </div>
         @isset($answers)
             <div class="wrapped-elements" style="padding-right: 15px">
-                {{ $answers->onEachSide(2)->links() }}
+                {{ $answers->appends(request()->query())->onEachSide(2)->links() }}
             </div>
         @endisset
         @endif
@@ -84,8 +111,8 @@
     <!-- Show modal all message -->
      @if (!isset($noMessage))
         @foreach ($answers as $item)
-            <div style="max-height:95vh;overflow: auto;" class="modal" data-api-url="{{ URL::to('/user/change-message') }}" data-csrf={{csrf_token()}} data-item-id="{{ $item->id }}" id="showItem" modal="edit" style="width: 500px;">
-                <div class="modal-header">
+            <div style="max-height:95vh;overflow: auto; width:500px" class="modal md-lf" data-api-url="{{ URL::to('/user/change-message') }}" data-csrf={{csrf_token()}} data-item-id="{{ $item->id }}" id="showItem" modal="edit" style="width: 500px;">
+                <div class="modal-header" data-item-id="{{ $item->id }}">
                     <img style="position:relative; z-index:99;" src="{{ asset('img/delete.png') }}" alt="close">
                 </div>
                 <div class="modal-body">
@@ -93,7 +120,7 @@
                     <p class="anser-zag">Ответ</p>
                     <textarea class="anser-area text-input">{{ $item->anser }}</textarea>
                     @if ($item->materials)
-                        <p class="dop-materials">Дополнительные материалы</p>
+                        <p class="dop-materials">Додаткові матеріали</p>
                         <table class="main-table form-work">
                             @foreach (json_decode($item->materials) as $material)
                             <tr>
@@ -119,7 +146,7 @@
                     <form id="form-del-it" action="{{ route('user.delete-message', ['id' => 0]) }}" method="POST">
                         @csrf
                         <input type="answer_id" name="user_id" hidden value="">
-                        <h2>Вы действительно хотите удалить сообщение?</h2>
+                        <h2>Ви дійсно хочете видалити повідомлення?</h2>
                         <div class="btn-form-group">
                             <input type="submit" value="Да" style="background-color:red;" class="btn-submit-input">
                             <input id="no-delete-item" type="button" value="Нет" class="btn-submit-input">
@@ -139,7 +166,7 @@
             <form action="{{ route('user.deleteAllMessage') }}" method="POST">
                 @csrf
                 <input type="text" name="user_id" hidden value="{{Auth::user()->id}}">
-                <h2>Вы действительно хотите удалить все сообщения?</h2>
+                <h2>Ви дійсно хочете видалити всі повідомлення?</h2>
                 <div class="btn-form-group">
                     <input type="submit" value="Да" style="background-color:red;" class="btn-submit-input">
                     <input id="no-delete" type="button" value="Нет" class="btn-submit-input">
@@ -156,6 +183,21 @@
         var closeFormDelete = document.querySelector('#close-modal-delete');
         var overlay = document.querySelector(".overlay");
         var noDelete = document.querySelector('#no-delete');
+        var modalHeader = document.querySelectorAll('.modal-header');
+        var myItems = document.querySelectorAll('.md-lf');
+
+
+        modalHeader.forEach(function(Main){
+            Main.addEventListener('click', function(){
+                dataMain = Main.getAttribute('data-item-id');
+                myItems.forEach(function(Second){
+                    if(Second.getAttribute('data-item-id') == dataMain){
+                        Second.classList.remove('show-block');
+                        overlay.classList.remove('show-block');
+                    }
+                });
+            })
+        })
 
         deleteAll.addEventListener('click', function(){
             formDeleteAll.classList.add('show-block');

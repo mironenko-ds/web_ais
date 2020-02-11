@@ -14,4 +14,8 @@ class AccountCreationRequest extends Model
     public function dep(){
         return $this->belongsTo('App\Models\Departments', 'departament');
     }
+
+    public function deg(){
+        return $this->belongsTo('App\Models\AcademicDegree', 'degree');
+    }
 }

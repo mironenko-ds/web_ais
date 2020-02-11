@@ -1,36 +1,40 @@
 @extends('user.layout.template')
-@section('title', 'Новая работа')
+@section('title', 'Нова робота')
 @section('content')
 <div class="page__title">
-    <a href="{{ route('user.index') }}">Главная</a>
+    <a href="{{ route('user.index') }}">Головна</a>
     <img src="{{ asset('/img/next.png') }}" alt="next">
-    <a href="{{ route('user.addWork') }}">Новая работа</a>
+    <a href="{{ route('user.addWork') }}">Нова робота</a>
 </div>
 <div class="user-add-work block">
     <div class="info-author">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+        @if ($errors->any())
+        <div class="wrapped-new-user-error">
+            <ul class="show-errors-server">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
         @if (session('errorMake'))
-            <div class="">
+            <div class="error-make">
                 {{ session()->get('errorMake') }}
             </div>
         @endif
         @if (session('successWork'))
-            <div class="">
+            <div class="good-new-work">
                 {{ session()->get('successWork') }}
             </div>
         @endif
         <div class="header">
             <h2>
-                Информация о авторе
+                Інформація про автора
             </h2>
             <img src="{{ asset('img/no-edit.png') }}" alt="no-edit">
         </div>
         <label for="user">
-            <p>Преподаватель</p>
+            <p>Викладач</p>
         <input type="text" id="user" class="text-input" readonly value="{{$employee}}">
         </label>
         <div class="wrap-el">
@@ -43,12 +47,12 @@
                 <input type="text" id="departament" class="text-input" readonly value="{{$departamentName}}">
             </label>
             <label for="year">
-                <p>Учебный год</p>
+                <p>Навчальний рік</p>
                 <input type="text" id="year" class="text-input" readonly value="{{$year}}">
             </label>
         </div>
         <label for="date-plane">
-            <p>Дата записи плана</p>
+            <p>Дата запису плану</p>
             <input type="text" id="date-plane" class="text-input" readonly value="{{$date}}">
         </label>
     </div>
@@ -56,54 +60,54 @@
         @csrf
         <div class="config-work">
             <div class="title">
-                <h2>Характиристики проекта</h2>
+                <h2>Характеристика проекту</h2>
             </div>
             <div class="input-group">
                 <label for="norma-1-plane">
-                    <p>Норма на 1й семестр по плану</p>
-                    <input pattern="\d+" type="text" name="norma-1-plane" required id="norma-1-plane" class="text-input">
+                    <p>Норма на 1й семестр за планом</p>
+                    <input type="number" min="0" max="2147483647" name="norma-1-plane" required id="norma-1-plane" class="text-input">
                 </label>
                 <label for="norma-2-plane">
-                    <p>Норма на 2й семестр по плану</p>
-                    <input pattern="\d+" type="text" name="norma-2-plane" required id="norma-2-plane" class="text-input">
+                    <p>Норма на 2й семестр за планом</p>
+                    <input type="number" min="0" max="2147483647" name="norma-2-plane" required id="norma-2-plane" class="text-input">
                 </label>
                 <label for="count-plane">
-                    <p>Количество по плану</p>
-                    <input pattern="\d+" type="text" name="count-plane" required id="count-plane" class="text-input">
+                    <p>Кількість за планом</p>
+                    <input type="number" min="0" max="2147483647" name="count-plane" required id="count-plane" class="text-input">
                 </label>
                 <label for="share-plane">
-                    <p>Доля по плану</p>
-                    <input pattern="\d+" type="text" name="share-plane" required id="share-plane" class="text-input">
+                    <p>Частка за планом</p>
+                    <input type="number" min="0" max="2147483647" name="share-plane" required id="share-plane" class="text-input">
                 </label>
                 <label for="norma-1-fact">
-                    <p>Норма на 1й семестр по факту</p>
-                    <input value="0" pattern="\d+" type="text" name="norma-1-fact" required id="norma-1-fact" class="text-input">
+                    <p>Норма на 1й семестр за фактом</p>
+                    <input value="0"  type="number" min="0" max="2147483647" name="norma-1-fact" required id="norma-1-fact" class="text-input">
                 </label>
                 <label for="norma-2-fact">
-                    <p>Норма на 2й семестр по факту</p>
-                    <input value="0" pattern="\d+" type="text" name="norma-2-fact" required id="norma-2-fact" class="text-input">
+                    <p>Норма на 2й семестр за фактом</p>
+                    <input value="0" type="number" min="0" max="2147483647" name="norma-2-fact" required id="norma-2-fact" class="text-input">
                 </label>
                  <label for="count-fact">
-                    <p>Количество по факту</p>
-                    <input value="0" pattern="\d+" type="text" name="count-fact" required id="count-fact" class="text-input">
+                    <p>Кількість за фактом</p>
+                    <input value="0" type="number" min="0" max="2147483647" name="count-fact" required id="count-fact" class="text-input">
                 </label>
                 <label for="share-fact">
-                    <p>Доля по факту</p>
-                    <input  value="0" pattern="\d+" type="text" name="share-fact" required id="share-fact" class="text-input">
+                    <p>Частка за фактом</p>
+                    <input  value="0" type="number" min="0" max="2147483647" name="share-fact" required id="share-fact" class="text-input">
                 </label>
             </div>
                 <div class="type-work">
                     <label for="t-work">
-                        <p>Тип работы</p>
-                        <select id="t-work">
+                        <p>Тип роботи</p>
+                        <select id="t-work" class="text-input">
                             @foreach ($type_work as $twork)
                                 <option value="{{ $twork->id }}">{{ $twork->name_type_work }}</option>
                             @endforeach
                         </select>
                     </label>
                     <label for="k-work">
-                        <p>Название вида работы</p>
-                        <select id="k-work">
+                        <p>Назва виду роботи</p>
+                        <select id="k-work" class="text-input">
                             @foreach ($work_kinds as $wkind)
                                 <option value="{{ $wkind->id }}">{{ $wkind->kind_name }}</option>
                             @endforeach
@@ -111,26 +115,28 @@
                     </label>
                     <label for="ratio">
                         <p>Работа</p>
-                        <select name="work" id="ratio">
+                        <select name="work" id="ratio" class="text-input">
                             @foreach ($works as $work)
                                 <option value="{{ $work->id }}">{{ $work->indicator }}</option>
                             @endforeach
                         </select>
-                        <p>Количество балов: <strong id="count-point"></strong></p>
                     </label>
                 </div>
         </div>
         <div class="content-work">
             <label for="work-title">
-                <p>Название работы</p>
+                <p>Назва роботи</p>
                 <input type="text" name="work-title" required id="work-title" class="text-input">
             </label>
-            <p>Описание работы</p>
+            <p>Опис роботи</p>
             <textarea class="text-input" name="desc-work" required></textarea>
         </div>
         <div class="form-buttom-group">
-            <input type="file" name="attachment[]" multiple/>
-            <button type="submit" class="btn-submit-input">Отправить</button>
+            <div class="add-files">
+                <p>Додаткові матеріали</p>
+                <input type="file" name="attachment[]" multiple/>
+            </div>
+            <button type="submit" class="btn-submit-input">Відправити</button>
         </div>
     </form>
 </div>
@@ -188,19 +194,8 @@
                     ratio.append(opt);
                 }
             }
-            setPoint();
+
        }
 
-       ratio.addEventListener('change', function(){
-        setPoint();
-        });
-
-        function setPoint(){
-            for(var ij = 0; ij < works.original.length; ij++){
-                    if(works.original[ij].id == +ratio.value){
-                        points.innerHTML = works.original[ij].norm;
-                    }
-                }
-        }
     </script>
 @endsection

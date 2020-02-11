@@ -12,6 +12,8 @@
 
    <link rel="stylesheet" href="{{ asset('css/style.min.css') }}">
 
+   <link rel="shortcut icon" href="{{ asset('img/icon.ico') }}" type="image/x-icon">
+
    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700,900&display=swap&subset=cyrillic"
    rel="stylesheet">
    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600&display=swap&subset=cyrillic"

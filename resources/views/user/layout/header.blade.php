@@ -7,7 +7,7 @@
         </div>
         @else
         <div class="head-title">
-            <h1>Панель администратора</h1>
+            <h1>Панель Адміністратора</h1>
         </div>
         @endif
     </div>
@@ -39,7 +39,7 @@
                    <a href="#"
                     onclick="event.preventDefault();
                              document.getElementById('logout-form').submit();"
-                   >Выход</a>
+                   >Вихід</a>
                 </div>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf

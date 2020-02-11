@@ -79,7 +79,7 @@
                 Змінити пароль
             </h1>
         </div>
-        <div class="wrapped-child">
+        <div class="wrapped-child" style="border-bottom: none;padding-bottom: 0;">
             <form action="{{ route('user.resetPass') }}" method="POST">
                 @csrf
                 <div class="user-group">

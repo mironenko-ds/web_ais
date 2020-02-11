@@ -1,31 +1,31 @@
 @extends('user.layout.template')
-@section('title', 'Мой аккаут')
+@section('title', 'Мій аккаунт')
 @section('content')
 <div class="page__title">
-    <a href="{{ route('user.index') }}">Главная</a>
+    <a href="{{ route('user.index') }}">Головна</a>
     <img src="{{ asset('img/next.png') }}" alt="">
-    <a href="{{ route('user.account') }}">Аккаунт</a>
+    <a href="{{ route('user.account') }}">Мій аккаунт</a>
 </div>
 <div class="user-info block">
     <div class="child-item">
         <div class="title-edit">
             <h1>
-                Общая информация
+                Загальна інформація
             </h1>
         </div>
         <div class="wrapped-child">
             <div class="user-group">
                 <label for="userName">
                     <input type="text" readonly name="" id="userName" class="text-input" value="{{ $userName }}">
-                    <p>Имя</p>
+                    <p>Ім'я</p>
                 </label>
                 <label for="userSurname">
                     <input type="text" readonly name="" id="userSurname" class="text-input" value="{{ $surName }}">
-                    <p>Фамилия</p>
+                    <p>Прізвище</p>
                 </label>
                 <label for="userPatronymic">
                     <input type="text" value="ggffff" readonly name="" id="userPatronymic" class="text-input" value="{{ $patronymic }}">
-                    <p>Отчество</p>
+                    <p>По батькові</p>
                 </label>
             </div>
         </div>
@@ -34,7 +34,7 @@
     <div class="child-item">
         <div class="title-edit">
             <h1>
-                Информация об аккаунте
+                Інформація про акаунт
             </h1>
         </div>
         <div class="wrapped-child">
@@ -42,14 +42,14 @@
                 @csrf
                 <div class="user-group">
                     <label for="userEmail">
-                        <input type="email" disabled="true" id="userEmail" class="text-input" value="{{ $email }}">
-                        <p>Почта</p>
+                        <input type="email" style="width: 268px;" disabled="true" id="userEmail" class="text-input" value="{{ $email }}">
+                        <p>Пошта</p>
                     </label>
                     <label for="userNewEmail">
-                        <input type="email" required name="new-email" id="userNewEmail" class="text-input">
-                        <p>Новая почта</p>
+                        <input type="email" style="width: 268px;" required name="new-email" id="userNewEmail" class="text-input">
+                        <p>Нова пошта</p>
                     </label>
-                    <button type="submit" class="btn-submit-input">Обновить</button>
+                    <button type="submit" class="btn-submit-input">Оновити</button>
 
                     @if (session('successEmail'))
                         <div class="email-reset">
@@ -76,7 +76,7 @@
     <div class="child-item">
         <div class="title-edit">
             <h1>
-                Информация о преподавателе
+                Інформація про викладача
             </h1>
         </div>
         <div class="wrapped-child">
@@ -91,11 +91,11 @@
                 </label>
                 <label for="userAcademicDegree">
                     <input type="text" disabled="true" name="" id="userAcademicDegree" class="text-input"value="{{$degreeName}}">
-                    <p>Ученая степень</p>
+                    <p>Наукова ступінь</p>
                 </label>
                 <label for="userType">
                     <input type="text" disabled="true" name="" id="userType" class="text-input" value="{{$userPost}}">
-                    <p>Должность</p>
+                    <p>Посада</p>
                 </label>
             </div>
         </div>
@@ -104,7 +104,7 @@
     <div class="child-item">
         <div class="title-edit">
             <h1>
-                Сменить пароль
+                Змінити пароль
             </h1>
         </div>
         <div class="wrapped-child">
@@ -114,19 +114,19 @@
                     <label for="userOldPassword">
                         <input type="password" required name="old-password"
                             id="userOldPassword" class="text-input">
-                        <p>Текущий пароль</p>
+                        <p>Поточний пароль</p>
                     </label>
                     <label for="userNewPassword">
                         <input type="password" required name="new-password" id="userNewPassword"
                             class="text-input" pattern="{8,}">
-                        <p>Новый пароль</p>
+                        <p>Новий пароль</p>
                     </label>
                     <label for="userNewPasswordReplay">
                         <input type="password" required name="replay-password" id="userNewPasswordReplay"
                             class="text-input" pattern="{8,}">
-                        <p>Повторите пароль</p>
+                        <p>Повторіть пароль</p>
                     </label>
-                    <button type="submit" class="btn-submit-input">Обновить</button>
+                    <button type="submit" class="btn-submit-input">Оновити</button>
 
                     @if (session('successPass'))
                         <div class="email-reset">
@@ -150,7 +150,7 @@
     <div class="child-item">
         <div class="title-edit">
             <h1>
-                <a id="showFormDeleteAccount" href="#">Удалить аккаунт</a>
+                <a id="showFormDeleteAccount" href="#">Видалити акаунт</a>
             </h1>
         </div>
         @if (session('successSend'))
@@ -172,9 +172,9 @@
                 @csrf
                 <label for="contentCause">
                     <textarea required name="content-message" id="contentCause" class="text-input"></textarea>
-                    <p>Причина удаления</p>
+                    <p>Причина видалення</p>
                 </label>
-                <button type="submit">Отправить</button>
+                <button type="submit">Відправити</button>
             </form>
         </div>
     </div>

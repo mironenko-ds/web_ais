@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WorkKind extends Model
 {
     protected $table = "works_kinds";
+    use SoftDeletes;
 
     public function work(){
-        return $this->hasOne('App\Models\Work');
+        return $this->hasMany('App\Models\Work', 'works_kinds_id');
     }
 
     public function typeWork(){

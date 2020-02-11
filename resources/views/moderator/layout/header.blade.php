@@ -1,15 +1,9 @@
 
 <header class="header">
     <div class="head-title">
-        @if (Auth::user()->role != 'admin')
         <div class="head-title">
             <h1>{{ Auth::user()->employee->departament->departament_name }}</h1>
         </div>
-        @else
-        <div class="head-title">
-            <h1>Панель Адміністратора</h1>
-        </div>
-        @endif
     </div>
     <div class="head-items">
         <div class="head__message">

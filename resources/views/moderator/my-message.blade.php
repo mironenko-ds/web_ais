@@ -20,23 +20,51 @@
         @endif
 
         @if (isset($noMessage))
-            <h1>{{ $noMessage }}</h1>
+            <h1 style="text-align: center;padding: 20px 0;">{{ $noMessage }}</h1>
         @else
         <div class="header">
-            <div class="header-item">
-                <p>Загальна кількість повідомлень: {{$answers->total()}}</p>
-            </div>
             <div class="header-item">
                 <p>Непрочитаних: {{ $count_no_read }}</p>
             </div>
             <div class="header-item">
                 <form action="" method="get">
                     <label for="sort">
-                        <p>Сортировка</p>
-                        <select name="type-sort" id="sort">
-                            <option value="1"></option>
+                        <p>Сортування</p>
+                        @if (!empty($get_req))
+                            <select name="value" id="sort">
+                                <option {{$get_req['val'] == 1 ? 'selected' : null}}
+                                    value="1">прочитані</option>
+                                <option {{$get_req['val'] == 2 ? 'selected' : null}}
+                                    value="2">додано</option>
+                            </select>
+                        @else
+                        <select name="value" id="sort">
+                            <option value="1">прочитані</option>
+                            <option value="2">додано</option>
                         </select>
+                        @endif
                     </label>
+            </div>
+            <div class="header-item">
+                    <label for="sort">
+                        <p>Як</p>
+                        @if (!empty($get_req))
+                            <select name="type-sort" id="type-sort">
+                                <option {{$get_req['type'] == 'desc' ? 'selected' : null}}
+                                value="desc">по спаданню</option>
+                                <option {{$get_req['type'] == 'asc' ? 'selected' : null}}
+                                value="asc">по зростанню</option>
+                            </select>
+                        @else
+                        <select name="type-sort" id="type-sort">
+                            <option value="desc">по спаданню</option>
+                            <option value="asc">по зростанню</option>
+                        </select>
+                        @endif
+                    </label>
+            </div>
+            <div class="header-item">
+                    <button type="submit" class="btn-submit-input">Оновити</button>
                 </form>
             </div>
             <div class="header-item">
@@ -72,7 +100,7 @@
         </div>
         @isset($answers)
             <div class="wrapped-elements" style="padding-right: 15px">
-                {{ $answers->onEachSide(2)->links() }}
+                {{ $answers->appends(request()->query())->onEachSide(2)->links() }}
             </div>
         @endisset
         @endif

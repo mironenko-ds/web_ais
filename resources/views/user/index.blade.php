@@ -1,8 +1,8 @@
 @extends('user.layout.template')
-@section('title', 'Главная страница')
+@section('title', 'Головна сторінка')
 @section('content')
     <div class="page__title">
-        <a href="#">Главная</a>
+        <a href="#">Головна</a>
     </div>
     <div class="user_offer block">
         <h1>Общая информация</h1>
