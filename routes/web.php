@@ -138,5 +138,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/questions', 'AdministratorController@questions')->name('admin.questions');
         Route::get('/management', 'AdministratorController@management')->name('admin.management');
         Route::get('/account', 'AdministratorController@account')->name('admin.account');
+
+        Route::get('/department/analytics/{id}', 'AdministratorController@departmentAnalytics')->name('admin.departmentAnalytics');
     });
 });

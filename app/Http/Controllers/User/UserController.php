@@ -38,6 +38,7 @@ use App\Services\SendUserMessage;
 use App\Services\SortUserWork;
 use App\Services\UserInfoService;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -46,10 +47,65 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $re)
     {
-        $user_email = Auth::user()->getRole();
-        return view('user.index', compact('user_email'));
+        if($re->input('val-date-1')){
+            $resultDateFirst = DB::select("select month(created_at) as mn, count(*) as cont
+            from plan_works
+            where employee_id = ? and created_at >= ? + ?
+            group by month(created_at)", array(Auth::user()->employee->id,
+            $re->input('val-date-1'),
+            $re->input('val-date-2')));
+        }else{
+            $resultDateFirst = DB::select("select month(created_at) as mn, count(*) as cont
+            from plan_works
+            where employee_id = 7 and created_at >= '2020-01-12' + '2020-02-12'
+            group by month(created_at)");
+        }
+        $count_work_good = PlanWork::where([
+            'employee_id' => Auth::user()->employee->id,
+            'status' => 1
+            ])->count();
+        $count_work_time = PlanWork::where([
+            'employee_id' => Auth::user()->employee->id,
+            'status' => 0
+            ])->count();
+
+        try {
+            $old_date = PlanWork::where([
+            'employee_id' => Auth::user()->employee->id,
+            'status' => 1
+            ])
+            ->select('created_at')
+            ->orderBy('created_at', 'asc')
+            ->first()->created_at->format('Y-m-d');
+
+        $max_date = PlanWork::where([
+            'employee_id' => Auth::user()->employee->id,
+            'status' => 1
+            ])
+            ->select('created_at')
+            ->orderBy('created_at', 'desc')
+            ->first()->created_at->format('Y-m-d');
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+        $allTypeWork = TypeWork::all();
+        $type_work_count = array();
+        foreach ($allTypeWork as $item) {
+            $count = DB::select("
+                SELECT count(*) as cn FROM plan_works
+                LEFT JOIN works on plan_works.work_id = works.id
+                LEFT JOIN works_kinds ON works.works_kinds_id = works_kinds.id
+                LEFT JOIN `type-works` ON works_kinds.type_work_id =  `type-works`.id
+                WHERE plan_works.employee_id = ? AND `type-works`.name_type_work = ?
+            ", array(Auth::user()->employee->id, $item->name_type_work));
+
+            $type_work_count[$item->name_type_work] = $count[0]->cn;
+        }
+
+        return view('user.index', compact('user_email', 'type_work_count', 'resultDateFirst', 'max_date', 'count_work_good', 'count_work_time','old_date'));
     }
 
     /**

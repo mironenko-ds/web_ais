@@ -1,6 +1,6 @@
 <div class="sidebar show">
     <div class="logo">
-        <a href="{{ route('admin.index') }}" class="project-logo">
+        <a href="{{ route('admin.management') }}" class="project-logo">
             <img src="{{ asset('img/logo.png') }}" alt="logo">
         </a>
     </div>

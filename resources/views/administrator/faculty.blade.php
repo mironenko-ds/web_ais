@@ -84,6 +84,9 @@
                         Завідувач кафедри
                     </th>
                     <th>
+                        Aналітика
+                    </th>
+                    <th>
                         Редагувати
                     </th>
                     <th>
@@ -97,6 +100,11 @@
                         </td>
                         <td>
                             {{ $departament->head_departament }}
+                        </td>
+                        <td>
+                            <a href="{{ route('admin.departmentAnalytics', $departament->id) }}">
+                                <img class="dep-link" src="{{ asset('img/link.png') }}" alt="dep-link">
+                            </a>
                         </td>
                         <td style="padding: 0; text-align:left;">
                            {{-- <textarea readonly style="width:100%; height:200px; resize:none; border:none;">{{ $question->content }}</textarea> --}}

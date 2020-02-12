@@ -1,8 +1,10 @@
-@extends('moderator.layout.template')
-@section('title', 'Головна сторінка')
+@extends('administrator.layout.template')
+@section('title', $dep_name)
 @section('content')
     <div class="page__title">
         <a href="#">Головна</a>
+        <img src="{{ asset('img/next.png') }}" alt="next">
+        <a href="#">{{$dep_name}}</a>
     </div>
     <div class="user_offer block-no-padding" style="margin-top: 30px;margin-bottom: 10px; max-width: 1200px;">
         <div class="header">
@@ -63,7 +65,7 @@
             </div>
             <div class="date-search-user">
                 <form action="" style="align-items: flex-end;">
-                    @isset($employees)
+                    @isset($employees[0])
                     <label for="">
                         <p>Співробітник кафедри</p>
                         <select name="user" class="text-input" style="margin-right:20px">
@@ -96,7 +98,7 @@
                     <canvas id="WorksArea"></canvas>
                 </div>
             </div>
-            @isset($employees)
+            @isset($employees[0])
             <div class="form-moder" style="margin:20px">
                 <form action="">
                     <label for="">
@@ -104,7 +106,6 @@
                         <select name="user-area" class="text-input" style="margin-right:20px">
                             @foreach ($employees as $item)
                                 <option
-                                {{ Auth::user()->employee->id == $item->id ? 'selected' : null }}
                                 value="{{$item->id}}">{{$item->name . ' ' . $item->surname}}</option>
                             @endforeach
                         </select>
@@ -138,7 +139,9 @@
 @endsection
 @section('scriptUser')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js" defer></script>
+    <script src="{{ asset('js/graph.min.js') }}" defer></script>
 @endsection
+
 
 @section('script')
 <script defer>

@@ -77,7 +77,7 @@ class User extends Authenticatable
 
         switch ($role) {
             case 'admin':
-                return '/admin/index';
+                return '/admin/management';
                 break;
             case 'moderator':
                 return '/moderator/index';

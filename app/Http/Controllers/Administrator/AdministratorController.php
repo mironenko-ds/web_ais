@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Administrator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicDegree;
+use App\Models\AccountCreationRequest;
 use App\Models\Departments;
 use App\Models\Employee;
 use App\Models\Facultes;
 use App\Models\Feedback;
+use App\Models\PlanWork;
 use App\Models\Post;
 use App\Models\TypeWork;
 use App\Models\Work;
@@ -545,5 +547,81 @@ class AdministratorController extends Controller
             return back();
         }
         return back();
+    }
+
+    public function departmentAnalytics(Request $re, $dep_id){
+        $dep_name = Departments::where('id', '=', $dep_id)->first()->departament_name;
+        $employees = Employee::where('department_id', '=', $dep_id)->get();
+
+        $user_id = '';
+        if($re->input('user')){
+            $user_id = $re->input('user');
+        }else{
+            if(isset($employees[0])){
+                $user_id = $employees[0]->id;
+            }else{
+                $user_id = 0;
+            }
+        }
+
+        if($re->input('val-date-1')){
+            $resultDateFirst = DB::select("select month(created_at) as mn, count(*) as cont
+            from plan_works
+            where employee_id = ? and created_at >= ? + ?
+            group by month(created_at)", array($user_id ,
+            $re->input('val-date-1'),
+            $re->input('val-date-2')));
+        }else{
+            $resultDateFirst = DB::select("select month(created_at) as mn, count(*) as cont
+            from plan_works
+            where employee_id = ? and created_at >= '2020-01-12' + '2020-02-12'
+            group by month(created_at)", array($user_id ));
+        }
+       try {
+        $old_date = PlanWork::where([
+            'employee_id' => $user_id,
+            'status' => 1
+            ])
+            ->select('created_at')
+            ->orderBy('created_at', 'asc')
+            ->first()->created_at->format('Y-m-d');
+
+        $max_date = PlanWork::where([
+            'employee_id' => $user_id,
+            'status' => 1
+            ])
+            ->select('created_at')
+            ->orderBy('created_at', 'desc')
+            ->first()->created_at->format('Y-m-d');
+
+       } catch (\Throwable $th) {
+        $old_date = '';
+        $max_date = '';
+       }
+       $select_user = $user_id;
+       if($re->input('select')){
+        $select_user = $re->input('user-area');
+        $isSelected = true;
+       }else{
+           $isSelected = false;
+       }
+        $allTypeWork = TypeWork::all();
+        $type_work_count = array();
+        foreach ($allTypeWork as $item) {
+            $count = DB::select("
+                SELECT count(*) as cn FROM plan_works
+                LEFT JOIN works on plan_works.work_id = works.id
+                LEFT JOIN works_kinds ON works.works_kinds_id = works_kinds.id
+                LEFT JOIN `type-works` ON works_kinds.type_work_id =  `type-works`.id
+                WHERE plan_works.employee_id = ? AND `type-works`.name_type_work = ?
+            ", array($select_user, $item->name_type_work));
+
+            $type_work_count[$item->name_type_work] = $count[0]->cn;
+        }
+        $count_work = PlanWork::where('departament_id', '=', $dep_id)->count();
+        $count_people = Employee::where('department_id', '=', $dep_id)->count();
+        $count_req = AccountCreationRequest::where('departament', '=', $dep_id)->count();
+        return view('administrator.analytics', compact('dep_name','count_req', 'count_people', 'count_work', 'isSelected', 'employees', 'user_email', 'type_work_count', 'resultDateFirst', 'max_date', 'count_work_good', 'count_work_time','old_date'));
+
     }
 }
